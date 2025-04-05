@@ -56,9 +56,10 @@ fun MovieAppBooking(){
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = "login"
+        startDestination = "main"
     ){
         composable("login") { LoginScreen(navController)  }
+        composable("main"){ MainScreen() }
     }
 }
 

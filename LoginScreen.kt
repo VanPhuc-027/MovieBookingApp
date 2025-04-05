@@ -26,15 +26,15 @@ fun LoginScreen(navController: NavController) {
     var selectedOption by remember { mutableStateOf("") }
     Box(
         modifier = Modifier.fillMaxSize()
-            .background(Color.Cyan),
+            .background(Color.LightGray),
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Text(text = "CHÀO MỪNG TRỞ LẠI",
-                color = Color.Magenta
+                color = Color.DarkGray,
+                modifier = Modifier.padding(top = 100.dp)
             )
             TextField(
                 modifier = Modifier.padding(top = 100.dp),
@@ -68,7 +68,6 @@ fun LoginScreen(navController: NavController) {
                     modifier = Modifier.padding(top = 10.dp)
                 )
             }
-
             Button(
                 onClick = {/*TODO*/ },
                 modifier = Modifier
@@ -81,18 +80,22 @@ fun LoginScreen(navController: NavController) {
                     text = stringResource(R.string.login),
                 )
             }
-
-            Button(
-                onClick = {/*TODO*/},
-                modifier = Modifier,
-                shape = RoundedCornerShape(15.dp)
-
-            ) {
+            Text(
+                text = "Quên mật khẩu",
+                modifier = Modifier.padding(top = 15.dp),
+                color = Color.Blue
+            )
+            Row (
+                modifier = Modifier.padding(top = 100.dp)
+            ){
                 Text(
-                    text = "Register"
+                    text = "Chưa có tài khoản?"
+                )
+                Text(
+                    text = "Đăng ký",
+                    color = Color.Yellow
                 )
             }
-
         }
     }
 }
