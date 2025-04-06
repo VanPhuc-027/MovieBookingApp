@@ -29,7 +29,7 @@ fun LoginScreen(navController: NavController) {
             .background(Color.LightGray),
         contentAlignment = Alignment.Center
     ) {
-        git add app/src/main/java/com/example/bookingmovie/*.ktColumn(
+        Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(text = "CHÀO MỪNG TRỞ LẠI",
