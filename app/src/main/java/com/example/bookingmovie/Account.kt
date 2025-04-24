@@ -3,7 +3,9 @@ package com.example.bookingmovie
 import android.accounts.Account
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -19,7 +21,7 @@ import androidx.navigation.compose.rememberNavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MovieAccount(){
+fun MovieAccount() {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -41,8 +43,31 @@ fun MovieAccount(){
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Text(text = "Tài khoản", fontSize = 18.sp)
-            // Danh sách sẽ để ở đây
+            Text(text = "👤 Tài khoản: admin01", fontSize = 18.sp)
+            Text(text = "🔐 Vai trò: Quản trị viên", fontSize = 14.sp, color = Color.Gray)
+
+            androidx.compose.material3.Divider(modifier = Modifier.padding(vertical = 12.dp))
+
+            // Nút Đổi mật khẩu
+            androidx.compose.material3.Button(
+                onClick = { /* TODO */ },
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .fillMaxWidth()
+            ) {
+                Text("Đổi mật khẩu")
+            }
+
+            // Nút Đăng xuất
+            androidx.compose.material3.Button(
+                onClick = { /* TODO */ },
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+            ) {
+                Text("Đăng xuất", color = Color.White)
+            }
         }
     }
 }
