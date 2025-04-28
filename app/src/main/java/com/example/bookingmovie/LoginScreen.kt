@@ -3,6 +3,9 @@ package com.example.bookingmovie
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -13,10 +16,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.bookingmovie.ViewModels.LoginViewModel
 import com.example.bookingmovie.ui.theme.BookingMovieTheme
 
 @Composable
@@ -24,6 +31,8 @@ fun LoginScreen(navController: NavController) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var selectedOption by remember { mutableStateOf("") }
+    var isPasswordVisible by remember { mutableStateOf(false) }
+    val viewModel: LoginViewModel = viewModel()
     Box(
         modifier = Modifier.fillMaxSize()
             .background(Color.LightGray),
@@ -38,13 +47,21 @@ fun LoginScreen(navController: NavController) {
             )
             TextField(
                 modifier = Modifier.padding(top = 100.dp),
-                value = "Tài khoản",
-                onValueChange = {}
+                value =viewModel.username,
+                onValueChange = {viewModel.username = it},
+                placeholder = { Text("Tài khoản") }
             )
             TextField(
-                modifier = Modifier.padding(top = 10.dp),
-                value = "Mật khẩu",
-                onValueChange = {}
+                value = viewModel.password,
+                onValueChange = { viewModel.password = it },
+                placeholder = { Text("Mật khẩu") },
+                visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    val icon = if (isPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                    IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                        Icon(imageVector = icon, contentDescription = null)
+                    }
+                }
             )
             Row(
                 modifier = Modifier,
@@ -99,6 +116,7 @@ fun LoginScreen(navController: NavController) {
         }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
