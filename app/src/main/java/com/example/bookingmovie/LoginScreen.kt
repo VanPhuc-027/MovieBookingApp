@@ -15,17 +15,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.bookingmovie.ViewModels.LoginViewModel
 import com.example.bookingmovie.ui.theme.BookingMovieTheme
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.foundation.clickable
-import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.sp
@@ -131,8 +127,8 @@ fun LoginScreen(navController: NavController) {
                 Spacer(modifier = Modifier.width(16.dp))
 
                 RadioButton(
-                    selected = selectedRole == "Admin",
-                    onClick = { selectedRole = "Admin" },
+                    selected = selectedRole == "com/example/bookingmovie/Admin",
+                    onClick = { selectedRole = "com/example/bookingmovie/Admin" },
                     colors = RadioButtonDefaults.colors(
                         selectedColor = Color.White,
                         unselectedColor = Color.LightGray
@@ -150,7 +146,7 @@ fun LoginScreen(navController: NavController) {
                         "User" -> navController.navigate("main") {
                             popUpTo("login") { inclusive = true }
                         }
-                        "Admin" -> navController.navigate("admin") {
+                        "com/example/bookingmovie/Admin" -> navController.navigate("admin") {
                             popUpTo("login") { inclusive = true }
                         }
                     }

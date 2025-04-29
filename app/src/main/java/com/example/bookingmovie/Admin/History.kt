@@ -1,4 +1,4 @@
-package com.example.bookingmovie
+package com.example.bookingmovie.Admin
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

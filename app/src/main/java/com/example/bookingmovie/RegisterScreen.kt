@@ -39,7 +39,8 @@ fun RegisterScreenContent(
     Column(
         modifier = Modifier
             .padding(24.dp)
-            .fillMaxSize(),
+            .fillMaxSize()
+        ,
         verticalArrangement = Arrangement.Center
     ) {
         Box(

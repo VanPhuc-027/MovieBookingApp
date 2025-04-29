@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.bookingmovie.Admin.MainScreen
 import com.example.bookingmovie.ui.screens.RegisterScreen
 
 class MainActivity : ComponentActivity() {
@@ -23,7 +24,7 @@ fun MovieAppBooking(){
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = "login"
+        startDestination = "main"
     ){
         composable("login") { LoginScreen(navController)  }
         composable("main"){ MainScreen() }
