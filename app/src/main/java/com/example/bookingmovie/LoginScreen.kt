@@ -177,7 +177,9 @@ fun LoginScreen(navController: NavController) {
                 Text(
                     text = "Đăng ký",
                     color = Color.Yellow,
-                    modifier = Modifier.clickable { }
+                    modifier = Modifier.clickable {
+                        navController.navigate("register")
+                    }
                 )
             }
         }
