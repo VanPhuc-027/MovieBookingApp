@@ -10,19 +10,27 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.clickable
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-
 fun MovieCategory() {
-    var categories by remember { mutableStateOf(
-        mutableListOf("Hành động", "Tình cảm", "Hài hước", "Kinh dị")
-    ) }
+    var categories by remember {
+        mutableStateOf(
+            mutableListOf("Lãng Mạn", "Hoạt Hình", "Chiến Tranh", "Tình Cảm", "Hành Động")
+        )
+    }
     var newCategory by remember { mutableStateOf("") }
     var isEditing by remember { mutableStateOf(false) }
     var editingIndex by remember { mutableStateOf(-1) }
@@ -32,31 +40,17 @@ fun MovieCategory() {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Quản lý thể loại",
-                        color = Color.White,
+                        text = "Thể loại",
+                        color = Color.White
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color(0xFF0D1B2A)
                 )
             )
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            TextField(
-                value = newCategory,
-                onValueChange = { newCategory = it },
-                placeholder = { Text("Nhập tên thể loại") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Button(
+        },
+        floatingActionButton = {
+            FloatingActionButton(
                 onClick = {
                     if (isEditing && editingIndex in categories.indices) {
                         categories = categories.toMutableList().also {
@@ -64,57 +58,81 @@ fun MovieCategory() {
                         }
                         isEditing = false
                         editingIndex = -1
-                    } else {
-                        if (newCategory.isNotBlank()) {
-                            categories = categories.toMutableList().also {
-                                it.add(newCategory)
-                            }
+                    } else if (newCategory.isNotBlank()) {
+                        categories = categories.toMutableList().also {
+                            it.add(newCategory)
                         }
                     }
                     newCategory = ""
                 },
-                modifier = Modifier.fillMaxWidth()
+                containerColor = Color(0xFF0D1B2A),
+                contentColor = Color.White
             ) {
-                Text(if (isEditing) "Lưu chỉnh sửa" else "Thêm thể loại")
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Thêm thể loại")
             }
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(16.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Ô nhập tên thể loại
+            TextField(
+                value = newCategory,
+                onValueChange = { newCategory = it },
+                placeholder = { Text("Tên thể loại...") },
+                modifier = Modifier.fillMaxWidth(),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Tìm kiếm"
+                    )
+                }
+            )
 
             Divider()
 
+            // Danh sách thể loại
             categories.forEachIndexed { index, category ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = category,
-                        modifier = Modifier.weight(1f),
-                        fontSize = 16.sp
+                        fontSize = 16.sp,
+                        modifier = Modifier.weight(1f)
                     )
-
                     Row {
-                        Text(
-                            text = "Sửa",
-                            color = Color(0xFF1E88E5),
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Sửa",
+                            tint = Color(0xFF1E88E5),
                             modifier = Modifier
-                                .padding(horizontal = 8.dp)
+                                .size(24.dp)
                                 .clickable {
                                     newCategory = category
                                     isEditing = true
                                     editingIndex = index
                                 }
                         )
-
-                        Text(
-                            text = "Xoá",
-                            color = Color.Red,
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Xoá",
+                            tint = Color.Red,
                             modifier = Modifier
+                                .size(24.dp)
                                 .clickable {
                                     categories = categories.toMutableList().also {
                                         it.removeAt(index)
                                     }
-                                    // Nếu đang sửa mục bị xoá
                                     if (isEditing && editingIndex == index) {
                                         isEditing = false
                                         editingIndex = -1

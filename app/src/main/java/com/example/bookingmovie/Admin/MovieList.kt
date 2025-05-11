@@ -1,157 +1,196 @@
 package com.example.bookingmovie.Admin
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.*
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
+import com.example.bookingmovie.R
 import com.example.bookingmovie.ui.theme.BookingMovieTheme
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.core.tween
-import androidx.compose.ui.draw.alpha
+import com.google.accompanist.flowlayout.FlowRow
 
-val movies = listOf(
-    "Inception", "Interstellar", "The Dark Knight", "Tenet",
-    "Dunkirk", "Oppenheimer", "Avengers: Endgame", "Kungfu Panda 4",
-    "Inception", "Joker", "The Dark Knight", "Tenet"
+data class AdminMovie(
+    val name: String,
+    val genre: String,
+    val description: String,
+    val price: String,
+    val releaseDate: String,
+    val imageResId: Int
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieList() {
-    var showAll by remember { mutableStateOf(false) }
-    var isSearchExpanded by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
+    var selectedGenre by remember { mutableStateOf("Tất cả") }
 
-    val filteredMovies = movies.filter { it.contains(searchText, ignoreCase = true) }
-    val displayedMovies = if (showAll) filteredMovies else filteredMovies.take(4)
+    val allGenres = listOf("Tất cả", "Lãng mạn", "Hoạt hình", "Chiến tranh", "Tình cảm", "Hành động")
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF1B263B))
-            .padding(16.dp)
-    ) {
-        Text(
-            text = "Quản lý phim",
-            color = Color.White,
-            fontSize = 20.sp,
-            modifier = Modifier.padding(bottom = 16.dp)
+    val allMovies = remember {
+        mutableStateListOf(
+            AdminMovie("Vua sư tử", "Hoạt hình", "I am the King", "90.000 VND", "24/6/1994", R.drawable.poster_vua_su_tu),
+            AdminMovie("Mắt biếc", "Lãng mạn", "Có chàng trai viết lên cây", "100.000 VND", "20/12/2019", R.drawable.poster_mat_biec),
         )
+    }
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
-        ) {
-            if (isSearchExpanded) {
-                OutlinedTextField(
-                    value = searchText,
-                    onValueChange = { searchText = it },
-                    placeholder = { Text("Tìm kiếm phim...", fontSize = 14.sp) },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = 8.dp),
-                    singleLine = true,
-                    textStyle = TextStyle(fontSize = 14.sp)
-                )
-            }
+    val filteredMovies = allMovies.filter {
+        (selectedGenre == "Tất cả" || it.genre == selectedGenre) &&
+                it.name.contains(searchText, ignoreCase = true)
+    }
 
-            IconButton(
-                onClick = {
-                    isSearchExpanded = !isSearchExpanded
-                    if (!isSearchExpanded) searchText = ""
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Tìm kiếm",
-                    tint = Color.White
-                )
-            }
-        }
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)) {
 
-        Button(
-            onClick = { /* TODO: Thêm phim */ },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color(0xFF1976D2),
-                contentColor = Color.White
+            // Tiêu đề
+            Text(
+                text = "PHIM",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
             )
-        ) {
-            Text("➕ Thêm phim")
-        }
 
-        LazyColumn(modifier = Modifier.weight(1f)) {
-            items(displayedMovies.size) { index ->
-                Card(
-                    backgroundColor = Color.White,
-                    elevation = 4.dp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 6.dp)
-                ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text(
-                            text = displayedMovies[index],
-                            color = Color(0xFF0D47A1),
-                            fontSize = 16.sp
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Tìm kiếm
+            OutlinedTextField(
+                value = searchText,
+                onValueChange = { searchText = it },
+                label = { Text("Tìm kiếm") },
+                modifier = Modifier.fillMaxWidth(),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Tìm kiếm"
+                    )
+                }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Thể loại
+            FlowRow(
+                mainAxisSpacing = 8.dp,
+                crossAxisSpacing = 8.dp,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                allGenres.forEach { genre ->
+                    FilterChip(
+                        selected = selectedGenre == genre,
+                        onClick = { selectedGenre = genre },
+                        label = {
+                            Text(
+                                text = genre,
+                                fontSize = 12.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
+                        shape = RoundedCornerShape(50.dp),
+                        colors = FilterChipDefaults.filterChipColors()
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Danh sách phim
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(filteredMovies, key = { it.name }) { movie ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color.White)
+                            .padding(8.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = movie.imageResId),
+                            contentDescription = movie.name,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(width = 100.dp, height = 140.dp)
+                                .clip(RoundedCornerShape(8.dp))
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row(
-                            horizontalArrangement = Arrangement.End,
-                            modifier = Modifier.fillMaxWidth()
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = movie.name, fontWeight = FontWeight.Bold)
+                            Text(text = "Thể loại: ${movie.genre}", fontSize = 12.sp)
+                            Text(text = movie.description, fontSize = 12.sp, maxLines = 2)
+                            Text(text = movie.price, fontSize = 12.sp, color = Color.Red)
+                            Text(text = "Khởi chiếu: ${movie.releaseDate}", fontSize = 12.sp, color = Color.Blue)
+                        }
+
+                        Column(
+                            horizontalAlignment = Alignment.End,
+                            verticalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.padding(start = 8.dp)
                         ) {
-                            Button(
-                                onClick = { /* TODO: Sửa */ },
-                                modifier = Modifier.padding(end = 8.dp)
-                            ) {
-                                Text("✏️ Sửa")
-                            }
-                            Button(
-                                onClick = { /* TODO: Xoá */ },
-                                colors = ButtonDefaults.buttonColors(
-                                    backgroundColor = Color(0xFFD32F2F),
-                                    contentColor = Color.White
-                                )
-                            ) {
-                                Text("🗑️ Xoá")
-                            }
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Sửa",
+                                tint = Color.Blue,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .clickable {
+                                        // TODO: xử lý sửa
+                                    }
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Xoá",
+                                tint = Color.Red,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .clickable {
+                                        allMovies.remove(movie)
+                                    }
+                            )
                         }
                     }
                 }
             }
         }
 
-        AnimatedVisibility(
-            visible = true,
-            enter = fadeIn(animationSpec = tween(500)),
-            exit = fadeOut(animationSpec = tween(500))
+        // Nút thêm phim
+        FloatingActionButton(
+            onClick = {
+                // TODO: chuyển sang màn hình thêm phim
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
+            containerColor = Color.Blue,
+            contentColor = Color.White
         ) {
-            Text(
-                text = if (showAll) "Thu gọn ▲" else "Xem thêm ▼",
-                color = Color(0xFF64B5F6),
-                fontSize = 14.sp,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .alpha(0.85f) // hiệu ứng mờ ảo nhẹ
-                    .padding(top = 12.dp)
-                    .clickable { showAll = !showAll }
-            )
+            Icon(imageVector = Icons.Default.Add, contentDescription = "Thêm phim")
         }
     }
 }

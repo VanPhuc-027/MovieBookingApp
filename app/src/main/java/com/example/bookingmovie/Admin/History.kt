@@ -24,25 +24,54 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.remember
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.lazy.items
-
-
-data class Booking(
-    val movieTitle: String,
-    val date: String,
-    val time: String,
-    val seats: List<String>,
-    val status: String
-)
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.Icon
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material.Divider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookingHistory() {
+    var searchId by remember { mutableStateOf("") }
+
+    // Dữ liệu mẫu
     val bookings = remember {
         listOf(
-            Booking("Avengers: Endgame", "10/04/2025", "18:00", listOf("A1", "A2"), "Đã thanh toán"),
-            Booking("Kungfu Panda 4", "11/04/2025", "20:00", listOf("B3", "B4"), "Chưa thanh toán"),
-            Booking("Joker", "09/04/2025", "22:00", listOf("C1"), "Đã huỷ")
+            BookingDetail(
+                id = "1675088298728",
+                email = "tin@gmail.com",
+                movieTitle = "Hai Chu Cho Sói",
+                date = "18-01-2023",
+                room = "Phòng 2",
+                time = "10AM - 11AM",
+                quantity = 2,
+                seats = listOf("4", "5"),
+                food = "Không",
+                payment = "PayPal",
+                total = "100 000 VND"
+            ),
+            BookingDetail(
+                id = "1675088288014",
+                email = "tin@gmail.com",
+                movieTitle = "Hai Chu Cho Sói",
+                date = "18-01-2023",
+                room = "Phòng 2",
+                time = "10AM - 11AM",
+                quantity = 2,
+                seats = listOf("6", "7"),
+                food = "Không",
+                payment = "PayPal",
+                total = "100 000 VND"
+            )
         )
+    }
+
+    val filteredBookings = bookings.filter {
+        it.id.contains(searchId, ignoreCase = true)
     }
 
     Scaffold(
@@ -63,32 +92,51 @@ fun BookingHistory() {
                 .padding(16.dp)
                 .fillMaxSize()
         ) {
-            Text("Danh sách vé đã đặt", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            // Ô tìm kiếm theo mã vé
+            OutlinedTextField(
+                value = searchId,
+                onValueChange = { searchId = it },
+                placeholder = { Text("ID...") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Tìm kiếm"
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
 
             Spacer(modifier = Modifier.height(12.dp))
 
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(bookings) { booking ->
+                items(filteredBookings) { booking ->
                     Card(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD))
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F0F0))
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
-                            Text("🎬 Phim: ${booking.movieTitle}", fontWeight = FontWeight.Bold)
-                            Text("📅 Ngày: ${booking.date}")
-                            Text("🕐 Giờ: ${booking.time}")
-                            Text("💺 Ghế: ${booking.seats.joinToString(", ")}")
+                            Text("Mã: ${booking.id}")
+                            Text("Email: ${booking.email}")
+                            Text("Tên phim: ${booking.movieTitle}")
+                            Text("Khởi chiếu: ${booking.date}")
+                            Text("Phòng chiếu: ${booking.room}")
+                            Text("Giờ chiếu: ${booking.time}")
+                            Text("Số lượng vé: ${booking.quantity}")
+                            Text("Ghế đã chọn: ${booking.seats.joinToString(", ")}")
+                            Text("Đồ ăn/uống: ${booking.food}")
+                            Text("Thanh toán: ${booking.payment}")
+
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Divider()
+                            Spacer(modifier = Modifier.height(4.dp))
+
                             Text(
-                                text = "📌 Trạng thái: ${booking.status}",
-                                color = when (booking.status) {
-                                    "Đã thanh toán" -> Color(0xFF2E7D32) // xanh lá
-                                    "Chưa thanh toán" -> Color(0xFFF9A825) // vàng
-                                    "Đã huỷ" -> Color.Red
-                                    else -> Color.Black
-                                }
+                                text = "Tổng tiền: ${booking.total}",
+                                color = Color.Red,
+                                fontWeight = FontWeight.Bold
                             )
                         }
                     }
@@ -97,6 +145,20 @@ fun BookingHistory() {
         }
     }
 }
+
+data class BookingDetail(
+    val id: String,
+    val email: String,
+    val movieTitle: String,
+    val date: String,
+    val room: String,
+    val time: String,
+    val quantity: Int,
+    val seats: List<String>,
+    val food: String,
+    val payment: String,
+    val total: String
+)
 
 @Preview
 @Composable
