@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.bookingmovie.ViewModels.RegisterViewModel
 import com.example.bookingmovie.ui.theme.BookingMovieTheme
 
@@ -34,7 +35,8 @@ fun RegisterScreenContent(
     onPasswordChange: (String) -> Unit,
     isPasswordVisible: Boolean,
     onPasswordVisibilityChange: () -> Unit,
-    onRegisterClick: () -> Unit
+    onRegisterClick: () -> Unit,
+    onBackClick:() ->Unit
 ) {
     Column(
         modifier = Modifier
@@ -106,11 +108,19 @@ fun RegisterScreenContent(
         ) {
             Text("Đăng ký")
         }
+
+        Button(
+            onClick = onBackClick,
+            modifier = Modifier.fillMaxWidth(),
+
+        ) {
+            Text("Quay lai")
+        }
     }
 }
 
 @Composable
-fun RegisterScreen() {
+fun RegisterScreen(navController : NavController) {
     var username by remember { mutableStateOf("") }
     var gmail by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
@@ -141,6 +151,9 @@ fun RegisterScreen() {
                     } else {
                         Toast.makeText(context, "Vui lòng nhập đầy đủ thông tin hợp lệ", Toast.LENGTH_SHORT).show()
                     }
+                },
+                onBackClick = {
+                    navController.popBackStack()
                 }
             )
         }
@@ -162,7 +175,8 @@ fun RegisterScreenPreview() {
             onPasswordChange = {},
             isPasswordVisible = false,
             onPasswordVisibilityChange = {},
-            onRegisterClick = {}
+            onRegisterClick = {},
+            onBackClick = {}
         )
     }
 }
