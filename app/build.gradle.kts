@@ -45,7 +45,10 @@ dependencies {
     implementation(libs.androidx.room.runtime.android)
     val nav_version = "2.8.9"
     val room_version = "2.6.1"
-    
+
+    implementation ("com.google.accompanist:accompanist-permissions:0.30.1")
+    implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
+
     implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation("androidx.compose.material:material:1.7.8")
     implementation(libs.androidx.core.ktx)
