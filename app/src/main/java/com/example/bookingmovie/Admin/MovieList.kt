@@ -28,57 +28,51 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bookingmovie.R
 import com.example.bookingmovie.ViewModels.MovieViewModel
+import com.example.bookingmovie.data.Genre.GenreEntity
+import com.example.bookingmovie.data.Movie.MovieEntity
+import com.example.bookingmovie.data.Movie.MovieWithGenre
 import com.example.bookingmovie.ui.theme.BookingMovieTheme
 import com.google.accompanist.flowlayout.FlowRow
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MovieList(viewModel: MovieViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
-    var searchText by remember { mutableStateOf("") }
-    var selectedGenre by remember { mutableStateOf("Tất cả") }
-
-    val allGenres = listOf("Tất cả", "Lãng mạn", "Hoạt hình", "Chiến tranh", "Tình cảm", "Hành động")
-
-    val movies by viewModel.allMoviesWithGenre.collectAsState()
-
+fun MovieListContent(
+    movies: List<MovieWithGenre>,
+    searchText: String,
+    selectedGenre: String,
+    allGenres: List<String>,
+    onSearchTextChange: (String) -> Unit,
+    onGenreSelected: (String) -> Unit,
+    onEdit: (MovieWithGenre) -> Unit = {},
+    onDelete: (MovieWithGenre) -> Unit = {},
+    onAdd: () -> Unit = {}
+) {
     val filteredMovies = movies.filter {
         (selectedGenre == "Tất cả" || it.genre.firstOrNull()?.genre_name == selectedGenre) &&
                 it.movie.movie_name.contains(searchText, ignoreCase = true)
     }
-
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)) {
 
-            // Tiêu đề
-            Text(
-                text = "PHIM",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-
+            Text(text = "PHIM", fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Tìm kiếm
             OutlinedTextField(
                 value = searchText,
-                onValueChange = { searchText = it },
+                onValueChange = onSearchTextChange,
                 label = { Text("Tìm kiếm") },
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Tìm kiếm"
-                    )
+                    Icon(imageVector = Icons.Default.Search, contentDescription = "Tìm kiếm")
                 }
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Thể loại
             FlowRow(
                 mainAxisSpacing = 8.dp,
                 crossAxisSpacing = 8.dp,
@@ -87,28 +81,16 @@ fun MovieList(viewModel: MovieViewModel = androidx.lifecycle.viewmodel.compose.v
                 allGenres.forEach { genre ->
                     FilterChip(
                         selected = selectedGenre == genre,
-                        onClick = { selectedGenre = genre },
-                        label = {
-                            Text(
-                                text = genre,
-                                fontSize = 12.sp,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        },
-                        shape = RoundedCornerShape(50.dp),
-                        colors = FilterChipDefaults.filterChipColors()
+                        onClick = { onGenreSelected(genre) },
+                        label = { Text(genre, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                        shape = RoundedCornerShape(50.dp)
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Danh sách phim
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(filteredMovies, key = { it.movie.movie_id }) { movieWithGenre ->
                     val movie = movieWithGenre.movie
                     val genre = movieWithGenre.genre
@@ -120,19 +102,18 @@ fun MovieList(viewModel: MovieViewModel = androidx.lifecycle.viewmodel.compose.v
                             .background(Color.White)
                             .padding(8.dp)
                     ) {
-                        // TODO: Load ảnh banner từ URL nếu có
                         Box(
                             modifier = Modifier
                                 .size(width = 100.dp, height = 140.dp)
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(Color.Gray) // Placeholder
+                                .background(Color.Gray)
                         )
 
                         Spacer(modifier = Modifier.width(12.dp))
 
                         Column(modifier = Modifier.weight(1f)) {
                             Text(text = movie.movie_name, fontWeight = FontWeight.Bold)
-                            Text(text = "Thể loại: ${movieWithGenre.genre}", fontSize = 12.sp)
+                            Text(text = "Thể loại: ${genre.joinToString { it.genre_name }}", fontSize = 12.sp)
                             Text(text = movie.description, fontSize = 12.sp, maxLines = 2)
                             Text(text = "${movie.price} VND", fontSize = 12.sp, color = Color.Red)
                             Text(text = "Khởi chiếu: ${movie.year}", fontSize = 12.sp, color = Color.Blue)
@@ -143,47 +124,47 @@ fun MovieList(viewModel: MovieViewModel = androidx.lifecycle.viewmodel.compose.v
                             verticalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier.padding(start = 8.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = "Sửa",
-                                tint = Color.Blue,
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .clickable {
-                                        // TODO: xử lý sửa
-                                    }
-                            )
+                            Icon(Icons.Default.Edit, contentDescription = "Sửa", tint = Color.Blue,
+                                modifier = Modifier.clickable { onEdit(movieWithGenre) }.size(24.dp))
                             Spacer(modifier = Modifier.height(16.dp))
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Xoá",
-                                tint = Color.Red,
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .clickable {
-                                        // TODO: xử lý xóa
-                                    }
-                            )
+                            Icon(Icons.Default.Delete, contentDescription = "Xoá", tint = Color.Red,
+                                modifier = Modifier.clickable { onDelete(movieWithGenre) }.size(24.dp))
                         }
                     }
                 }
             }
         }
 
-        // Nút thêm phim
         FloatingActionButton(
-            onClick = {
-                // TODO: chuyển sang màn hình thêm phim
-            },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp),
+            onClick = onAdd,
+            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
             containerColor = Color.Blue,
             contentColor = Color.White
         ) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "Thêm phim")
+            Icon(Icons.Default.Add, contentDescription = "Thêm phim")
         }
     }
+}
+
+@Composable
+fun MovieList(viewModel: MovieViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+    var searchText by remember { mutableStateOf("") }
+    var selectedGenre by remember { mutableStateOf("Tất cả") }
+    val allGenres = listOf("Tất cả", "Lãng mạn", "Hoạt hình", "Chiến tranh", "Tình cảm", "Hành động")
+
+    val movies by viewModel.allMoviesWithGenre.collectAsState()
+
+    MovieListContent(
+        movies = movies,
+        searchText = searchText,
+        selectedGenre = selectedGenre,
+        allGenres = allGenres,
+        onSearchTextChange = { searchText = it },
+        onGenreSelected = { selectedGenre = it },
+        onAdd = { /* TODO */ },
+        onEdit = { /* TODO */ },
+        onDelete = { /* TODO */ }
+    )
 }
 
 
@@ -193,7 +174,26 @@ fun MovieList(viewModel: MovieViewModel = androidx.lifecycle.viewmodel.compose.v
 @Preview(showBackground = true)
 @Composable
 fun MovieListPreview() {
+    val mockMovies = listOf(
+        MovieWithGenre(
+            movie = MovieEntity(1, "Cuộc chiến vô cực", 1, 100000, "2023",100.000,"","",2003),
+            genre = listOf(GenreEntity(1, "Hành động","hay"))
+        ),
+        MovieWithGenre(
+            movie = MovieEntity(2, "Tình yêu mùa hạ", 1, 80000, "dien  anh tuyet doi",100.000,"","",2004),
+            genre = listOf(GenreEntity(2, "Tình cảm","cũng cũng"))
+        )
+    )
+
     BookingMovieTheme {
-        MovieList()
+        MovieListContent(
+            movies = mockMovies,
+            searchText = "",
+            selectedGenre = "Tất cả",
+            allGenres = listOf("Tất cả", "Hành động", "Tình cảm"),
+            onSearchTextChange = {},
+            onGenreSelected = {}
+        )
     }
 }
+
