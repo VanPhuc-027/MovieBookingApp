@@ -7,6 +7,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Fastfood
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
@@ -28,6 +29,7 @@ import com.example.bookingmovie.MovieAccount
 
 sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: String) {
     object Category : BottomNavItem("category", Icons.Default.List, "Thể loại")
+    object FoodDrink : BottomNavItem("menu", Icons.Default.Fastfood, "Menu")
     object Home : BottomNavItem("home", Icons.Default.Home, "Phim")
     object History : BottomNavItem("history", Icons.Default.Home, "Lịch sử")
     object Settings : BottomNavItem("settings", Icons.Default.Settings, "Tài khoản")
@@ -35,6 +37,7 @@ sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: 
 
 val bottomNavItems = listOf(
     BottomNavItem.Category,
+    BottomNavItem.FoodDrink,
     BottomNavItem.Home,
     BottomNavItem.History,
     BottomNavItem.Settings
@@ -95,6 +98,9 @@ fun MainScreen() {
             }
             composable(BottomNavItem.Settings.route) {
                 MovieAccount()
+            }
+            composable(BottomNavItem.FoodDrink.route){
+                FoodDrinkScreen()
             }
         }
     }
