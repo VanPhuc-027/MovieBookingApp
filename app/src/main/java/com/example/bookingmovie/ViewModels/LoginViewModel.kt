@@ -4,14 +4,14 @@ import android.app.Application
 import androidx.compose.runtime.*
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bookingmovie.data.User.UserDataBase
+import com.example.bookingmovie.data.AppDatabase
 import com.example.bookingmovie.data.User.UserEntity
 import com.example.bookingmovie.data.User.UserRepository
 import kotlinx.coroutines.launch
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val db = UserDataBase.getDatabase(application)
+    private val db = AppDatabase.getDatabase(application)
     private val repo = UserRepository(db.userDao())
 
     var username by mutableStateOf("")

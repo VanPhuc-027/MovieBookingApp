@@ -27,37 +27,26 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bookingmovie.R
+import com.example.bookingmovie.ViewModels.MovieViewModel
 import com.example.bookingmovie.ui.theme.BookingMovieTheme
 import com.google.accompanist.flowlayout.FlowRow
 
-data class AdminMovie(
-    val name: String,
-    val genre: String,
-    val description: String,
-    val price: String,
-    val releaseDate: String,
-    val imageResId: Int
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MovieList() {
+fun MovieList(viewModel: MovieViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
     var searchText by remember { mutableStateOf("") }
     var selectedGenre by remember { mutableStateOf("Tất cả") }
 
     val allGenres = listOf("Tất cả", "Lãng mạn", "Hoạt hình", "Chiến tranh", "Tình cảm", "Hành động")
 
-    val allMovies = remember {
-        mutableStateListOf(
-            AdminMovie("Vua sư tử", "Hoạt hình", "I am the King", "90.000 VND", "24/6/1994", R.drawable.poster_vua_su_tu),
-            AdminMovie("Mắt biếc", "Lãng mạn", "Có chàng trai viết lên cây", "100.000 VND", "20/12/2019", R.drawable.poster_mat_biec),
-        )
+    val movies by viewModel.allMoviesWithGenre.collectAsState()
+
+    val filteredMovies = movies.filter {
+        (selectedGenre == "Tất cả" || it.genre.firstOrNull()?.genre_name == selectedGenre) &&
+                it.movie.movie_name.contains(searchText, ignoreCase = true)
     }
 
-    val filteredMovies = allMovies.filter {
-        (selectedGenre == "Tất cả" || it.genre == selectedGenre) &&
-                it.name.contains(searchText, ignoreCase = true)
-    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier
@@ -120,7 +109,10 @@ fun MovieList() {
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(filteredMovies, key = { it.name }) { movie ->
+                items(filteredMovies, key = { it.movie.movie_id }) { movieWithGenre ->
+                    val movie = movieWithGenre.movie
+                    val genre = movieWithGenre.genre
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -128,23 +120,22 @@ fun MovieList() {
                             .background(Color.White)
                             .padding(8.dp)
                     ) {
-                        Image(
-                            painter = painterResource(id = movie.imageResId),
-                            contentDescription = movie.name,
-                            contentScale = ContentScale.Crop,
+                        // TODO: Load ảnh banner từ URL nếu có
+                        Box(
                             modifier = Modifier
                                 .size(width = 100.dp, height = 140.dp)
                                 .clip(RoundedCornerShape(8.dp))
+                                .background(Color.Gray) // Placeholder
                         )
 
                         Spacer(modifier = Modifier.width(12.dp))
 
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(text = movie.name, fontWeight = FontWeight.Bold)
-                            Text(text = "Thể loại: ${movie.genre}", fontSize = 12.sp)
+                            Text(text = movie.movie_name, fontWeight = FontWeight.Bold)
+                            Text(text = "Thể loại: ${movieWithGenre.genre}", fontSize = 12.sp)
                             Text(text = movie.description, fontSize = 12.sp, maxLines = 2)
-                            Text(text = movie.price, fontSize = 12.sp, color = Color.Red)
-                            Text(text = "Khởi chiếu: ${movie.releaseDate}", fontSize = 12.sp, color = Color.Blue)
+                            Text(text = "${movie.price} VND", fontSize = 12.sp, color = Color.Red)
+                            Text(text = "Khởi chiếu: ${movie.year}", fontSize = 12.sp, color = Color.Blue)
                         }
 
                         Column(
@@ -170,7 +161,7 @@ fun MovieList() {
                                 modifier = Modifier
                                     .size(24.dp)
                                     .clickable {
-                                        allMovies.remove(movie)
+                                        // TODO: xử lý xóa
                                     }
                             )
                         }
@@ -194,6 +185,10 @@ fun MovieList() {
         }
     }
 }
+
+
+
+
 
 @Preview(showBackground = true)
 @Composable
