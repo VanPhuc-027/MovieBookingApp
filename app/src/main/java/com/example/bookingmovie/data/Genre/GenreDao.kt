@@ -1,15 +1,20 @@
 package com.example.bookingmovie.data.Genre
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface GenreDao {
-    @Query("SELECT * FROM genres")
-    fun getAllGenres(): List<GenreEntity>
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertGenre(genre: GenreEntity)
+    suspend fun inserGenre(genre: GenreEntity)
+
+    @Query("SELECT * FROM genres")
+    fun getAllGenres(): Flow<List<GenreEntity>>
+
+    @Delete
+    suspend fun deleteGenre(genre: GenreEntity)
 }
