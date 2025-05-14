@@ -8,6 +8,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.bookingmovie.data.Genre.GenreDao
 import com.example.bookingmovie.data.Genre.GenreEntity
+import com.example.bookingmovie.data.Item.ItemDao
+import com.example.bookingmovie.data.Item.ItemEntity
 import com.example.bookingmovie.data.User.UserDao
 import com.example.bookingmovie.data.User.UserEntity
 
@@ -15,7 +17,8 @@ import com.example.bookingmovie.data.User.UserEntity
     entities = [
         MovieEntity::class,
         GenreEntity::class,
-        UserEntity::class
+        UserEntity::class,
+        ItemEntity::class
                ],
     version = 1
 )
@@ -23,6 +26,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun movieDao(): MovieDao
     abstract fun genreDao(): GenreDao
     abstract fun userDao() : UserDao
+    abstract fun itemDao() : ItemDao
 
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null

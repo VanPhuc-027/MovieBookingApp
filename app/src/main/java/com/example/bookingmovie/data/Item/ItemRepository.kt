@@ -1,4 +1,4 @@
 package com.example.bookingmovie.data.Item
 
-class ItemRepository {
+class ItemRepository () {
 }
