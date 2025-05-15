@@ -1,6 +1,5 @@
 package com.example.bookingmovie.Admin
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -20,13 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.bookingmovie.R
+import coil.compose.AsyncImage
 import com.example.bookingmovie.ViewModels.GenreViewModel
 import com.example.bookingmovie.ViewModels.MovieViewModel
 import com.example.bookingmovie.data.Genre.GenreEntity
@@ -103,11 +101,13 @@ fun MovieListContent(
                             .background(Color.White)
                             .padding(8.dp)
                     ) {
-                        Box(
+                        AsyncImage(
+                            model = movie.banner,
+                            contentDescription = "Poster phim",
                             modifier = Modifier
                                 .size(width = 100.dp, height = 140.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color.Gray)
+                                .clip(RoundedCornerShape(8.dp)),
+                            contentScale = ContentScale.Crop
                         )
 
                         Spacer(modifier = Modifier.width(12.dp))
@@ -116,8 +116,8 @@ fun MovieListContent(
                             Text(text = movie.movie_name, fontWeight = FontWeight.Bold)
                             Text(text = "Thể loại: ${genre.joinToString { it.genre_name }}", fontSize = 12.sp)
                             Text(text = "Mô tả: ${movie.description}", fontSize = 12.sp, maxLines = 2)
-                            Text(text = "${movie.price} VND", fontSize = 12.sp, color = Color.Red)
-                            Text(text = "Khởi chiếu: ${movie.year}", fontSize = 12.sp, color = Color.Blue)
+                            Text(text = "Giá vé: %,d VND".format(movie.price.toInt()), fontSize = 12.sp, color = Color.Red)
+                            Text(text = "Năm sản xuất: ${movie.year}", fontSize = 12.sp, color = Color.Blue)
                         }
 
                         Column(
@@ -270,7 +270,7 @@ fun AddMovieScreen(
 fun MovieListPreview() {
     val mockMovies = listOf(
         MovieWithGenre(
-            movie = MovieEntity(1, "Cuộc chiến vô cực",  "2023",100.000,"","",2003),
+            movie = MovieEntity(1, "Cuộc chiến vô cực",  "2023",100.000,"https://media.themoviedb.org/t/p/w600_and_h900_bestv2/cAoktVUBhGyULRoxV6mZ2LB3x7I.jpg","",2003),
             genre = listOf(GenreEntity(1, "Hành động","hay"))
         ),
         MovieWithGenre(
@@ -286,7 +286,10 @@ fun MovieListPreview() {
             selectedGenre = "Tất cả",
             allGenres = listOf("Tất cả", "Hành động", "Tình cảm"),
             onSearchTextChange = {},
-            onGenreSelected = {}
+            onGenreSelected = {} ,
+                onEdit = {},
+            onDelete = {},
+            onAdd = {}
         )
     }
 }

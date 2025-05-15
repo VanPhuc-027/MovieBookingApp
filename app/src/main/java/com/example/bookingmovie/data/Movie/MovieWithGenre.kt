@@ -11,12 +11,12 @@ data class MovieWithGenre(
     @Embedded val movie: MovieEntity,
 
     @Relation(
-        parentColumn = "movie_id",  // Khóa chính trong MovieEntity
-        entityColumn = "genre_id",  // Khóa chính trong GenreEntity
+        parentColumn = "movie_id",
+        entityColumn = "genre_id",
         associateBy = Junction(
             value = MovieGenreCrossRefEntity::class,
-            parentColumn = "movieId", // trong bảng trung gian
-            entityColumn = "genreId"  // trong bảng trung gian
+            parentColumn = "movieId",
+            entityColumn = "genreId"
         )
     )
     val genre: List<GenreEntity>
