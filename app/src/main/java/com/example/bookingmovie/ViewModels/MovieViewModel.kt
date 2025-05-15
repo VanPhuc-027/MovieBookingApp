@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.bookingmovie.data.AppDatabase
 import com.example.bookingmovie.data.Movie.MovieEntity
 import com.example.bookingmovie.data.Movie.MovieWithGenre
+import com.example.bookingmovie.data.MovieGenreCrossRef.MovieGenreCrossRefDao
+import com.example.bookingmovie.data.MovieGenreCrossRef.MovieGenreCrossRefEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +19,10 @@ class MovieViewModel (application: Application) : AndroidViewModel(application){
     private val movieDao = AppDatabase.getDatabase(application).movieDao()
 
     private val _movies = MutableStateFlow<List<MovieEntity>>(emptyList())
+
+    private val movieGenreCrossRefDao = AppDatabase.getDatabase(application).movieGenreCrossRefDao()
+
+
     val movies : StateFlow<List<MovieEntity>> = _movies.asStateFlow()
 
     val allMoviesWithGenre: StateFlow<List<MovieWithGenre>> = movieDao.getAllMoviesWithGenre()
@@ -51,5 +57,14 @@ class MovieViewModel (application: Application) : AndroidViewModel(application){
             movieDao.deleteMovies(movie)
         }
     }
+    fun addMovieWithGenres(movie: MovieEntity, genreIds: List<Int>) {
+        viewModelScope.launch {
+            val movieId = movieDao.insertMovie(movie)
+            genreIds.forEach { genreId ->
+                movieGenreCrossRefDao.insertCrossRef(MovieGenreCrossRefEntity(movieId = movieId.toInt(), genreId = genreId))
+            }
+        }
+    }
+
 
 }

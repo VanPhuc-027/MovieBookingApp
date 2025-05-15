@@ -27,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bookingmovie.R
+import com.example.bookingmovie.ViewModels.GenreViewModel
 import com.example.bookingmovie.ViewModels.MovieViewModel
 import com.example.bookingmovie.data.Genre.GenreEntity
 import com.example.bookingmovie.data.Movie.MovieEntity
@@ -114,7 +115,7 @@ fun MovieListContent(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(text = movie.movie_name, fontWeight = FontWeight.Bold)
                             Text(text = "Thể loại: ${genre.joinToString { it.genre_name }}", fontSize = 12.sp)
-                            Text(text = movie.description, fontSize = 12.sp, maxLines = 2)
+                            Text(text = "Mô tả: ${movie.description}", fontSize = 12.sp, maxLines = 2)
                             Text(text = "${movie.price} VND", fontSize = 12.sp, color = Color.Red)
                             Text(text = "Khởi chiếu: ${movie.year}", fontSize = 12.sp, color = Color.Blue)
                         }
@@ -147,26 +148,119 @@ fun MovieListContent(
 }
 
 @Composable
-fun MovieList(viewModel: MovieViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun MovieList(
+    viewModel: MovieViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    genreViewModel: GenreViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
     var searchText by remember { mutableStateOf("") }
     var selectedGenre by remember { mutableStateOf("Tất cả") }
-    val allGenres = listOf("Tất cả", "Lãng mạn", "Hoạt hình", "Chiến tranh", "Tình cảm", "Hành động")
-
+    //val allGenres = listOf("Tất cả", "Lãng mạn", "Hoạt hình", "Chiến tranh", "Tình cảm", "Hành động")
+    val allGenresFromDb by genreViewModel.genreNames.collectAsState()
+    val allGenres = listOf("Tất cả") + allGenresFromDb
     val movies by viewModel.allMoviesWithGenre.collectAsState()
 
-    MovieListContent(
-        movies = movies,
-        searchText = searchText,
-        selectedGenre = selectedGenre,
-        allGenres = allGenres,
-        onSearchTextChange = { searchText = it },
-        onGenreSelected = { selectedGenre = it },
-        onAdd = { /* TODO */ },
-        onEdit = { /* TODO */ },
-        onDelete = { /* TODO */ }
-    )
+    var showAddForm by remember { mutableStateOf(false) }
+
+    if (showAddForm) {
+        AddMovieScreen(
+            genres = genreViewModel.genres.collectAsState().value,
+            onSave = { movie, selectedGenreIds ->
+                viewModel.addMovieWithGenres(movie, selectedGenreIds)
+                showAddForm = false
+            },
+            onCancel = { showAddForm = false }
+        )
+    } else {
+        MovieListContent(
+            movies = movies,
+            searchText = searchText,
+            selectedGenre = selectedGenre,
+            allGenres = allGenres,
+            onSearchTextChange = { searchText = it },
+            onGenreSelected = { selectedGenre = it },
+            onAdd = { showAddForm = true },
+            onEdit = { /* TODO */ },
+            onDelete = { /* TODO */ }
+        )
+    }
+
 }
 
+@Composable
+fun AddMovieScreen(
+    genres: List<GenreEntity>,
+    onSave: (MovieEntity, List<Int>) -> Unit,
+    onCancel: () -> Unit
+) {
+    var movieName by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var price by remember { mutableStateOf("") }
+    var banner by remember { mutableStateOf("") }
+    var video by remember { mutableStateOf("") }
+    var year by remember { mutableStateOf("") }
+    val selectedGenres = remember { mutableStateListOf<Int>() }
+
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp)) {
+
+        Text("Thêm Phim", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(8.dp))
+
+        OutlinedTextField(value = movieName, onValueChange = { movieName = it }, label = { Text("Tên phim") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("Mô tả") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = price, onValueChange = { price = it }, label = { Text("Giá vé") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = banner, onValueChange = { banner = it }, label = { Text("Banner URL") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = video, onValueChange = { video = it }, label = { Text("Trailer URL") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = year, onValueChange = { year = it }, label = { Text("Năm sản xuất") }, modifier = Modifier.fillMaxWidth())
+
+        Spacer(Modifier.height(12.dp))
+        Text("Chọn thể loại:", fontWeight = FontWeight.Bold)
+
+        FlowRow(mainAxisSpacing = 8.dp, crossAxisSpacing = 8.dp) {
+            genres.forEach { genre ->
+                FilterChip(
+                    selected = selectedGenres.contains(genre.genre_id),
+                    onClick = {
+                        if (selectedGenres.contains(genre.genre_id)) {
+                            selectedGenres.remove(genre.genre_id)
+                        } else {
+                            selectedGenres.add(genre.genre_id)
+                        }
+                    },
+                    label = { Text(genre.genre_name, fontSize = 12.sp) },
+                    shape = RoundedCornerShape(50)
+                )
+            }
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = onCancel, colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)) {
+                Text("Hủy")
+            }
+            Spacer(Modifier.width(8.dp))
+            Button(onClick = {
+                if (movieName.isNotBlank() && price.toDoubleOrNull() != null && year.toIntOrNull() != null) {
+                    onSave(
+                        MovieEntity(
+                            movie_name = movieName,
+                            description = description,
+                            price = price.toDouble(),
+                            banner = banner,
+                            video = video,
+                            year = year.toInt()
+                        ),
+                        selectedGenres.toList()
+                    )
+                }
+            }) {
+                Text("Lưu")
+            }
+        }
+    }
+}
 
 
 
@@ -176,11 +270,11 @@ fun MovieList(viewModel: MovieViewModel = androidx.lifecycle.viewmodel.compose.v
 fun MovieListPreview() {
     val mockMovies = listOf(
         MovieWithGenre(
-            movie = MovieEntity(1, "Cuộc chiến vô cực", 1, 100000, "2023",100.000,"","",2003),
+            movie = MovieEntity(1, "Cuộc chiến vô cực",  "2023",100.000,"","",2003),
             genre = listOf(GenreEntity(1, "Hành động","hay"))
         ),
         MovieWithGenre(
-            movie = MovieEntity(2, "Tình yêu mùa hạ", 1, 80000, "dien  anh tuyet doi",100.000,"","",2004),
+            movie = MovieEntity(2, "Tình yêu mùa hạ",  "dien  anh tuyet doi",100.000,"","",2004),
             genre = listOf(GenreEntity(2, "Tình cảm","cũng cũng"))
         )
     )

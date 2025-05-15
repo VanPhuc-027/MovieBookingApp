@@ -8,6 +8,7 @@ import com.example.bookingmovie.data.Genre.GenreEntity
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.map
 
 class GenreViewModel(application: Application) : AndroidViewModel(application){
     private val genreDao = AppDatabase.getDatabase(application).genreDao()
@@ -17,6 +18,11 @@ class GenreViewModel(application: Application) : AndroidViewModel(application){
         SharingStarted.WhileSubscribed(5000),
         emptyList()
     )
+
+    val genreNames = genreDao.getAllGenres()
+        .map { list -> list.map { it.genre_name } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
 
     fun addGenre(name:String,description:String){
         viewModelScope.launch {
