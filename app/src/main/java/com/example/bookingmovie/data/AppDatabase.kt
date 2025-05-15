@@ -10,6 +10,8 @@ import com.example.bookingmovie.data.Genre.GenreDao
 import com.example.bookingmovie.data.Genre.GenreEntity
 import com.example.bookingmovie.data.MovieGenreCrossRef.MovieGenreCrossRefDao
 import com.example.bookingmovie.data.MovieGenreCrossRef.MovieGenreCrossRefEntity
+import com.example.bookingmovie.data.Item.ItemDao
+import com.example.bookingmovie.data.Item.ItemEntity
 import com.example.bookingmovie.data.User.UserDao
 import com.example.bookingmovie.data.User.UserEntity
 
@@ -18,7 +20,8 @@ import com.example.bookingmovie.data.User.UserEntity
         MovieEntity::class,
         GenreEntity::class,
         UserEntity::class,
-        MovieGenreCrossRefEntity::class
+        MovieGenreCrossRefEntity::class,
+        ItemEntity::class
                ],
     version = 1
 )
@@ -27,6 +30,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun genreDao(): GenreDao
     abstract fun userDao() : UserDao
     abstract fun movieGenreCrossRefDao () :MovieGenreCrossRefDao
+    abstract fun itemDao() : ItemDao
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null
 
