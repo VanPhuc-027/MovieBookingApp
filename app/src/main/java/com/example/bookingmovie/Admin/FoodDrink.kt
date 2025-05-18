@@ -1,6 +1,5 @@
 package com.example.bookingmovie.Admin
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,11 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bookingmovie.ViewModels.MenuViewModel
 import com.example.bookingmovie.data.Item.ItemEntity
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FoodDrinkScreen(viewModel: MenuViewModel = viewModel()) {
     var searchQuery by remember { mutableStateOf("") }
@@ -33,89 +32,95 @@ fun FoodDrinkScreen(viewModel: MenuViewModel = viewModel()) {
         .filter { it.name.contains(searchQuery, ignoreCase = true) }
         .sortedBy { it.quantity }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Black)
-                    .padding(vertical = 12.dp),
-                contentAlignment = Alignment.Center
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "MENU",
+                        color = Color.White
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFF0D1B2A)
+                )
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    editingItem = null
+                    showDialog = true
+                },
+                containerColor = MaterialTheme.colorScheme.primary
             ) {
-                Text("MENU", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            }
-
-            Column(modifier = Modifier.padding(16.dp)) {
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    label = { Text("Tìm kiếm món") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Text(
-                    text = "Tổng số món: ${filteredList.size}",
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    fontWeight = FontWeight.Medium
-                )
-
-                LazyColumn {
-                    items(filteredList) { item ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(text = item.name,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(end = 8.dp))
-                                Text("Giá: ${item.price} đ")
-                                Text("Tồn kho: ${item.quantity}")
-                            }
-                            Row {
-                                IconButton(onClick = {
-                                    editingItem = item
-                                    showDialog = true
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Edit,
-                                        contentDescription = "Sửa",
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                                IconButton(onClick = {
-                                    itemToDelete = item
-                                    showDeleteDialog = true
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = "Xoá",
-                                        tint = MaterialTheme.colorScheme.error
-                                    )
-                                }
-                            }
-                        }
-                        Divider()
-                    }
-                }
+                Icon(Icons.Default.Add, contentDescription = "Thêm món", tint = Color.White)
             }
         }
-
-        FloatingActionButton(
-            onClick = {
-                editingItem = null
-                showDialog = true
-            },
-            containerColor = MaterialTheme.colorScheme.primary,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
+    ) { paddingValues ->
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .padding(16.dp)
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Thêm món", tint = Color.White)
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                label = { Text("Tìm kiếm món") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Text(
+                text = "Tổng số món: ${filteredList.size}",
+                modifier = Modifier.padding(vertical = 8.dp),
+                fontWeight = FontWeight.Medium
+            )
+
+            LazyColumn {
+                items(filteredList) { item ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = item.name,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(end = 8.dp)
+                            )
+                            Text("Giá: ${item.price} đ")
+                            Text("Tồn kho: ${item.quantity}")
+                        }
+                        Row {
+                            IconButton(onClick = {
+                                editingItem = item
+                                showDialog = true
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "Sửa",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            IconButton(onClick = {
+                                itemToDelete = item
+                                showDeleteDialog = true
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Xoá",
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+                    }
+                    Divider()
+                }
+            }
         }
 
         if (showDialog) {

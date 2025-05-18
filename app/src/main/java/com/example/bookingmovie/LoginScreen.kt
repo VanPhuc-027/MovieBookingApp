@@ -109,7 +109,7 @@ fun LoginScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(16.dp))
 
             // Lựa chọn phân quyền
-            Row(
+            /*Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
@@ -135,7 +135,7 @@ fun LoginScreen(navController: NavController) {
                     )
                 )
                 Text("Quản trị", color = Color.White)
-            }
+            }*/
 
             Spacer(modifier = Modifier.height(24.dp))
 
