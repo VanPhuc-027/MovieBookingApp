@@ -110,11 +110,7 @@ fun UserMainScreen(appNavController: NavHostController) {
                 BookingHistoryScreen()
             }
             composable(BottomNavItem.Settings.route) {
-<<<<<<< HEAD
                 MovieAccount(appNavController = appNavController)
-=======
-                UserAccount()
->>>>>>> c6a80974b916768f29a9a450a4884161e92e7113
             }
         }
     }
