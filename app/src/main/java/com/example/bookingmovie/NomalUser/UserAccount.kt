@@ -23,6 +23,7 @@ import com.example.bookingmovie.ui.theme.Purple40
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+
 fun MovieAccount(appNavController: NavHostController) {
     var showLogoutDialog by remember { mutableStateOf(false) }
     Scaffold(
