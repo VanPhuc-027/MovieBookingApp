@@ -25,8 +25,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.bookingmovie.MovieAccount
 
 
-//Sử dụng BottomNavigation để làm thanh mục lục điều hướng ở dưới
-
 sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: String) {
     object Category : BottomNavItem("category", Icons.Default.List, "Thể loại")
     object FoodDrink : BottomNavItem("menu", Icons.Default.Fastfood, "Menu")

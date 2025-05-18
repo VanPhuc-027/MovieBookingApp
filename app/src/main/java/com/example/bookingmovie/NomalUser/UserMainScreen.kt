@@ -88,7 +88,7 @@ fun BottomNavigationBar(navController: NavController) {
 }
 
 @Composable
-fun MainScreen() {
+fun UserMainScreen() {
     val navController = rememberNavController()
 
     Scaffold(
@@ -118,5 +118,5 @@ fun MainScreen() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewMainScreen() {
-    MainScreen()
+    UserMainScreen()
 }
