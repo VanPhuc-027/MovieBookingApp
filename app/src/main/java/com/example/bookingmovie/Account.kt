@@ -24,14 +24,19 @@ import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.*
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MovieAccount() {
+fun Account(appNavController: NavHostController) {
+    val showLogoutDialog = remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -85,8 +90,40 @@ fun MovieAccount() {
             AccountOptionItem(
                 icon = Icons.Default.Logout,
                 text = "Đăng xuất",
-                onClick = { /* TODO */ }
+                onClick = {
+                    showLogoutDialog.value = true
+                }
             )
+
+            // Xác nhận đăng xuất hay không
+            if (showLogoutDialog.value) {
+                AlertDialog(
+                    onDismissRequest = {
+                        showLogoutDialog.value = false
+                    },
+                    title = { Text("Xác nhận đăng xuất") },
+                    text = { Text("Bạn có chắc chắn muốn đăng xuất không?") },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showLogoutDialog.value = false
+                                appNavController.navigate("login") {
+                                    popUpTo(0) { inclusive = true } // Xóa toàn bộ backstack
+                                }
+                            }
+                        ) {
+                            Text("Đăng xuất")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = {
+                            showLogoutDialog.value = false
+                        }) {
+                            Text("Hủy")
+                        }
+                    }
+                )
+            }
         }
     }
 }
@@ -108,10 +145,4 @@ fun AccountOptionItem(icon: ImageVector, text: String, onClick: () -> Unit) {
         )
         Text(text, fontSize = 16.sp)
     }
-}
-
-@Preview
-@Composable
-fun Preview2(){
-    MovieAccount()
 }
