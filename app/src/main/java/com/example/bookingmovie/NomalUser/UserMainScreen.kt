@@ -100,7 +100,7 @@ fun UserMainScreen() {
             modifier = Modifier.padding(padding)
         ) {
             composable(BottomNavItem.Home.route) {
-                //MovieList()
+                UserMovieList()
             }
             composable(BottomNavItem.Category.route) {
                 MovieCategoryScreen()
@@ -109,7 +109,7 @@ fun UserMainScreen() {
                 BookingHistoryScreen()
             }
             composable(BottomNavItem.Settings.route) {
-                MovieAccount()
+                UserAccount()
             }
         }
     }

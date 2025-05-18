@@ -20,7 +20,7 @@ import com.example.bookingmovie.ui.theme.Purple40
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MovieAccount() {
+fun UserAccount() {
     Scaffold(
         containerColor = Color(0xFF0D0D0D), // màu nền đen nhẹ
         topBar = {
@@ -91,8 +91,10 @@ fun MenuItem(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String
     }
 }
 
+
+
 @Preview(showBackground = true, backgroundColor = 0xFF000000)
 @Composable
 fun PreviewMovieAccount() {
-    MovieAccount()
+    UserAccount()
 }
