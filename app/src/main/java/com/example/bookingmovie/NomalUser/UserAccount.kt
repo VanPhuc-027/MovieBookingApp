@@ -23,9 +23,13 @@ import com.example.bookingmovie.ui.theme.Purple40
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+<<<<<<< HEAD
 fun MovieAccount(appNavController: NavHostController) {
     var showLogoutDialog by remember { mutableStateOf(false) }
 
+=======
+fun UserAccount() {
+>>>>>>> c6a80974b916768f29a9a450a4884161e92e7113
     Scaffold(
         containerColor = Color(0xFF0D0D0D),
         topBar = {
@@ -122,9 +126,15 @@ fun MenuItem(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String
     }
 }
 
+
+
 @Preview(showBackground = true, backgroundColor = 0xFF000000)
 @Composable
 fun PreviewMovieAccount() {
+<<<<<<< HEAD
     val navController = rememberNavController()
     MovieAccount(appNavController = navController)
+=======
+    UserAccount()
+>>>>>>> c6a80974b916768f29a9a450a4884161e92e7113
 }
