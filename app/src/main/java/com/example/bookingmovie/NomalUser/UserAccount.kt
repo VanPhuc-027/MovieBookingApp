@@ -8,7 +8,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,13 +16,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.bookingmovie.ui.theme.Purple40
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MovieAccount() {
+fun MovieAccount(appNavController: NavHostController) {
+    var showLogoutDialog by remember { mutableStateOf(false) }
+
     Scaffold(
-        containerColor = Color(0xFF0D0D0D), // màu nền đen nhẹ
+        containerColor = Color(0xFF0D0D0D),
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -61,7 +66,33 @@ fun MovieAccount() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            MenuItem(icon = Icons.Default.ExitToApp, text = "Thoát") { /* TODO: Đăng xuất */ }
+            MenuItem(icon = Icons.Default.ExitToApp, text = "Thoát") {
+                showLogoutDialog = true
+            }
+        }
+
+        // Dialog xác nhận đăng xuất
+        if (showLogoutDialog) {
+            AlertDialog(
+                onDismissRequest = { showLogoutDialog = false },
+                title = { Text("Xác nhận đăng xuất") },
+                text = { Text("Bạn có chắc muốn đăng xuất?") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showLogoutDialog = false
+                        appNavController.navigate("login") {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }) {
+                        Text("Đồng ý")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showLogoutDialog = false }) {
+                        Text("Huỷ")
+                    }
+                }
+            )
         }
     }
 }
@@ -94,5 +125,6 @@ fun MenuItem(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String
 @Preview(showBackground = true, backgroundColor = 0xFF000000)
 @Composable
 fun PreviewMovieAccount() {
-    MovieAccount()
+    val navController = rememberNavController()
+    MovieAccount(appNavController = navController)
 }

@@ -10,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.bookingmovie.Admin.MainScreen
 import com.example.bookingmovie.NomalUser.UserMainScreen
 import com.example.bookingmovie.ui.screens.RegisterScreen
+import androidx.navigation.NavHostController
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,7 +31,7 @@ fun MovieAppBooking(){
         composable("login") { LoginScreen(navController)  }
         composable("main"){ MainScreen() }
         composable("register"){ RegisterScreen(navController) }
-        composable("mainUser") {UserMainScreen()  }
+        composable("mainUser") {UserMainScreen(appNavController = navController as NavHostController)  }
     }
 }
 

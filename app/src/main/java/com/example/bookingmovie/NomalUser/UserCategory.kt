@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieCategoryScreen() {
+
     val categories = listOf(
         "Anime", "Bí Ẩn", "Chiến Tranh", "Chiếu Rạp", "Chuyển Thể", "Chính Kịch", "Chính Luận", "Chính Trị",
         "Chương Trình Truyền Hình", "Cung Đấu", "Cuối Tuần", "Cách Mạng", "Cổ Trang", "Cổ Tích", "Cổ Điển", "DC",

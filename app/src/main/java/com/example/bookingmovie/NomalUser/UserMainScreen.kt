@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -88,7 +89,7 @@ fun BottomNavigationBar(navController: NavController) {
 }
 
 @Composable
-fun UserMainScreen() {
+fun UserMainScreen(appNavController: NavHostController) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -109,7 +110,7 @@ fun UserMainScreen() {
                 BookingHistoryScreen()
             }
             composable(BottomNavItem.Settings.route) {
-                MovieAccount()
+                MovieAccount(appNavController = appNavController)
             }
         }
     }
@@ -118,5 +119,6 @@ fun UserMainScreen() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewMainScreen() {
-    UserMainScreen()
+    val navController = rememberNavController()
+    UserMainScreen(appNavController = navController as NavHostController)
 }
