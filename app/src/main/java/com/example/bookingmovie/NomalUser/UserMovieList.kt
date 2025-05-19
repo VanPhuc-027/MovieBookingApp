@@ -27,10 +27,12 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.graphics.Color
+import com.example.bookingmovie.MovieUI.Movie.toUIModel
 
 @Composable
 fun UserMovieList(
-    appNavController: NavHostController, movieViewModel: MovieViewModel = viewModel(),
+    appNavController: NavHostController,
+    movieViewModel: MovieViewModel = viewModel(),
 ) {
     Column(
         modifier = Modifier
@@ -63,7 +65,7 @@ fun UserMovieList(
         Spacer(modifier = Modifier.height(8.dp))
 
         // Danh sách phim KHÔNG CÒN thanh tìm kiếm ở đây nữa
-        UserMovieListContent(movieViewModel)
+        UserMovieListContent(appNavController,movieViewModel)
     }
 }
 
@@ -149,7 +151,7 @@ fun SearchScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(filteredMovies) { movieWithGenre ->
-                    MovieGridItem(movieWithGenre)
+                    MovieGridItem(movieWithGenre,appNavController)
                 }
             }
         }
@@ -158,6 +160,7 @@ fun SearchScreen(
 
 @Composable
 fun UserMovieListContent(
+    appNavController: NavHostController,
     movieViewModel: MovieViewModel = viewModel()
 ) {
     val movieList by movieViewModel.allMoviesWithGenre.collectAsState()
@@ -213,7 +216,7 @@ fun UserMovieListContent(
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(filteredMovies) { movieWithGenre ->
-                    MovieGridItem(movieWithGenre)
+                    MovieGridItem(movieWithGenre,appNavController)
                 }
             }
         }
@@ -222,14 +225,21 @@ fun UserMovieListContent(
 
 @Composable
 fun MovieGridItem(
-    movieWithGenre: MovieWithGenre
+    movieWithGenre: MovieWithGenre,
+    appNavController: NavHostController
 ) {
     val movie = movieWithGenre.movie
-
+    val uiModel = movie.toUIModel()
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(4.dp),
+            .padding(4.dp)
+        .clickable {
+            appNavController.currentBackStackEntry
+                ?.savedStateHandle
+                ?.set("movie", uiModel)
+        appNavController.navigate("movie_detail")
+    },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
@@ -248,3 +258,5 @@ fun MovieGridItem(
         )
     }
 }
+
+

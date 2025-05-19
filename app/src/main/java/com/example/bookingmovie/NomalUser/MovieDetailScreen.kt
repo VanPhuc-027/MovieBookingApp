@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,20 +20,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.TopAppBar
 import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.rememberAsyncImagePainter
-import com.example.bookingmovie.R
+import com.example.bookingmovie.MovieUI.Movie.MovieUIModel
 
-data class Movie(
-    val title: String,
-    val genre: String,
-    val releaseDate: String,
-    val price: String,
-    val description: String,
-    val posterUrl: String,
-    val views: Int
-)
 
 @Composable
-fun MovieDetailScreen(movie: Movie, onBack: () -> Unit, onBook: () -> Unit) {
+fun MovieDetailScreen(
+    movie: MovieUIModel,
+    onBack: () -> Unit,
+    onBook: () -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -65,7 +59,7 @@ fun MovieDetailScreen(movie: Movie, onBack: () -> Unit, onBook: () -> Unit) {
                 .verticalScroll(rememberScrollState())
         ) {
             Image(
-                painter = rememberAsyncImagePainter(model = movie.posterUrl),
+                painter = rememberAsyncImagePainter(model = movie.banner),
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -74,9 +68,9 @@ fun MovieDetailScreen(movie: Movie, onBack: () -> Unit, onBook: () -> Unit) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Text(movie.title, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-            Text("Thể loại: ${movie.genre}")
-            Text("Khởi chiếu: ${movie.releaseDate}")
+            Text(movie.movie_name, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            Text("Thể loại: ${movie.description}")
+            Text("Khởi chiếu: ${movie.year}")
             Text("Giá vé: ${movie.price}", color = Color.Red)
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -124,14 +118,14 @@ fun MovieDetailScreen(movie: Movie, onBack: () -> Unit, onBook: () -> Unit) {
 @Preview()
 @Composable
 fun Prreview5(){
-    val mockMovie = Movie(
-        title = "Lật Mặt 7",
-        genre = "Hành động",
-        releaseDate = "20/05/2025",
-        price = "90.000đ",
+    val mockMovie = MovieUIModel(
+        movie_id = 1,
+        movie_name = "Lật Mặt 7",
         description = "Một bộ phim hành động kịch tính về tình bạn và phản bội...",
-        posterUrl = "https://media.themoviedb.org/t/p/w600_and_h900_bestv2/wRrGBv4uNofBVyShxfS0iugbcm8.jpg",
-        views = 12345
+        price = 90000.0,
+        banner = "https://media.themoviedb.org/t/p/w600_and_h900_bestv2/wRrGBv4uNofBVyShxfS0iugbcm8.jpg",
+        video = "https://www.youtube.com/watch?v=dQw4w9WgXcQ", // Giả sử có trailer
+        year = 2025
     )
 
     MovieDetailScreen(

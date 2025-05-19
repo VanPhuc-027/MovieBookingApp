@@ -32,7 +32,7 @@ fun MovieAppBooking(){
         composable("main"){ MainScreen(appNavController = navController) }
         composable("register"){ RegisterScreen(navController) }
         composable("mainUser") {UserMainScreen(appNavController = navController) }
-        composable("search") { SearchScreen(appNavController = navController) }
+
     }
 }
 

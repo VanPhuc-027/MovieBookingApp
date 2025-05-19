@@ -22,6 +22,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.bookingmovie.MovieUI.Movie.MovieUIModel
 
 sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: String) {
     object Home : BottomNavItem("home", Icons.Filled.Home, "Trang chủ")
@@ -90,18 +91,17 @@ fun BottomNavigationBar(navController: NavController) {
 
 @Composable
 fun UserMainScreen(appNavController: NavHostController) {
-    val navController = rememberNavController()
-
+    val innerNavController = rememberNavController()
     Scaffold(
-        bottomBar = { BottomNavigationBar(navController) }
+        bottomBar = { BottomNavigationBar(innerNavController) }
     ) { padding ->
         NavHost(
-            navController = navController,
+            navController = innerNavController,
             startDestination = BottomNavItem.Home.route,
             modifier = Modifier.padding(padding)
         ) {
             composable(BottomNavItem.Home.route) {
-                UserMovieList(appNavController = appNavController)
+                UserMovieList(appNavController = innerNavController)
             }
             composable(BottomNavItem.Category.route) {
                 MovieCategoryScreen()
@@ -113,13 +113,20 @@ fun UserMainScreen(appNavController: NavHostController) {
                 UserAccount(appNavController = appNavController)
             }
 
-            composable("movie_detail"){
-                val movie = navController.previousBackStackEntry?.savedStateHandle?.get<Movie>("movie")
+            composable("search") { SearchScreen(appNavController = innerNavController) }
+
+            composable("movie_detail") {
+                val movie: MovieUIModel? = innerNavController
+                    .previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.get<MovieUIModel>("movie")
                 movie?.let {
                     MovieDetailScreen(
                         movie = it,
-                        onBack = {navController.popBackStack()},
-                        onBook = {}
+                        onBack = { innerNavController.popBackStack() },
+                        onBook = {
+                            // Xử lý chuyển sang màn booking tùy bạn
+                        }
                     )
                 }
             }
