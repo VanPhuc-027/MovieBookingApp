@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.TopAppBar
 import androidx.compose.ui.tooling.preview.Preview
+import coil.compose.rememberAsyncImagePainter
+import com.example.bookingmovie.R
 
 data class Movie(
     val title: String,
@@ -27,7 +29,7 @@ data class Movie(
     val releaseDate: String,
     val price: String,
     val description: String,
-    val posterResId: Int,
+    val posterUrl: String,
     val views: Int
 )
 
@@ -63,7 +65,7 @@ fun MovieDetailScreen(movie: Movie, onBack: () -> Unit, onBook: () -> Unit) {
                 .verticalScroll(rememberScrollState())
         ) {
             Image(
-                painter = painterResource(id = movie.posterResId),
+                painter = rememberAsyncImagePainter(model = movie.posterUrl),
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -122,5 +124,19 @@ fun MovieDetailScreen(movie: Movie, onBack: () -> Unit, onBook: () -> Unit) {
 @Preview()
 @Composable
 fun Prreview5(){
+    val mockMovie = Movie(
+        title = "Lật Mặt 7",
+        genre = "Hành động",
+        releaseDate = "20/05/2025",
+        price = "90.000đ",
+        description = "Một bộ phim hành động kịch tính về tình bạn và phản bội...",
+        posterUrl = "https://media.themoviedb.org/t/p/w600_and_h900_bestv2/wRrGBv4uNofBVyShxfS0iugbcm8.jpg",
+        views = 12345
+    )
 
+    MovieDetailScreen(
+        movie = mockMovie,
+        onBack = {},
+        onBook = {}
+    )
 }

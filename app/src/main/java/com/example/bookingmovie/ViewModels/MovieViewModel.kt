@@ -46,22 +46,29 @@ class MovieViewModel (application: Application) : AndroidViewModel(application){
         }
     }
 
-    /*private fun UpdateMovies(movie: MovieEntity){
+    fun updateMovieWithGenres(movie: MovieEntity, genreIds: List<Int>) {
         viewModelScope.launch {
-            movieDao.udateMovie(movie)
+            movieDao.updateMovie(movie)
+            movieGenreCrossRefDao.deleteCrossRefsByMovieId(movie.movie_id)
+            genreIds.forEach { genreId ->
+                movieGenreCrossRefDao.insertCrossRef(
+                    MovieGenreCrossRefEntity(movieId = movie.movie_id, genreId = genreId)
+                )
+            }
         }
-    }*/
+    }
 
-    private fun DeleteMovies(movie: MovieEntity){
+    fun DeleteMovies(movieWithGenre: MovieWithGenre){
         viewModelScope.launch {
-            movieDao.deleteMovies(movie)
+            movieGenreCrossRefDao.deleteCrossRefsByMovieId((movieWithGenre.movie.movie_id))
+            movieDao.deleteMovies(movieWithGenre.movie)
         }
     }
     fun addMovieWithGenres(movie: MovieEntity, genreIds: List<Int>) {
         viewModelScope.launch {
             val movieId = movieDao.insertMovie(movie)
             genreIds.forEach { genreId ->
-                movieGenreCrossRefDao.insertCrossRef(MovieGenreCrossRefEntity(movieId = movieId.toInt(), genreId = genreId))
+                movieGenreCrossRefDao.insertCrossRef(MovieGenreCrossRefEntity(movieId = movieId, genreId = genreId))
             }
         }
     }

@@ -158,17 +158,27 @@ fun MovieList(
     val allGenresFromDb by genreViewModel.genreNames.collectAsState()
     val allGenres = listOf("Tất cả") + allGenresFromDb
     val movies by viewModel.allMoviesWithGenre.collectAsState()
+    var movieToEdit by remember { mutableStateOf<MovieWithGenre?>(null) }
 
     var showAddForm by remember { mutableStateOf(false) }
 
     if (showAddForm) {
         AddMovieScreen(
+            movieToEdit = movieToEdit,
             genres = genreViewModel.genres.collectAsState().value,
             onSave = { movie, selectedGenreIds ->
-                viewModel.addMovieWithGenres(movie, selectedGenreIds)
+                if (movieToEdit == null) {
+                    viewModel.addMovieWithGenres(movie, selectedGenreIds)
+                } else {
+                    viewModel.updateMovieWithGenres(movie.copy(movie_id = movieToEdit!!.movie.movie_id), selectedGenreIds)
+                }
                 showAddForm = false
+                movieToEdit = null
             },
-            onCancel = { showAddForm = false }
+            onCancel = {
+                showAddForm = false
+                movieToEdit = null
+            }
         )
     } else {
         MovieListContent(
@@ -179,8 +189,12 @@ fun MovieList(
             onSearchTextChange = { searchText = it },
             onGenreSelected = { selectedGenre = it },
             onAdd = { showAddForm = true },
-            onEdit = { /* TODO */ },
-            onDelete = { /* TODO */ }
+            onEdit = { movie ->
+                movieToEdit = movie
+                showAddForm = true },
+            onDelete = { movieWithGenre ->
+                viewModel.DeleteMovies(movieWithGenre)
+            }
         )
     }
 
@@ -190,6 +204,7 @@ fun MovieList(
 fun AddMovieScreen(
     genres: List<GenreEntity>,
     onSave: (MovieEntity, List<Int>) -> Unit,
+    movieToEdit: MovieWithGenre? = null,
     onCancel: () -> Unit
 ) {
     var movieName by remember { mutableStateOf("") }
@@ -204,7 +219,7 @@ fun AddMovieScreen(
         .fillMaxSize()
         .padding(16.dp)) {
 
-        Text("Thêm Phim", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        //Text("Thêm Phim", fontSize = 20.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
 
         OutlinedTextField(value = movieName, onValueChange = { movieName = it }, label = { Text("Tên phim") }, modifier = Modifier.fillMaxWidth())
@@ -261,6 +276,7 @@ fun AddMovieScreen(
         }
     }
 }
+
 
 
 

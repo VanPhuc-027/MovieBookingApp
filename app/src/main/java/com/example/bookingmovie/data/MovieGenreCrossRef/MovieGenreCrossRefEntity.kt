@@ -4,6 +4,6 @@ import androidx.room.Entity
 
 @Entity(primaryKeys = ["movieId", "genreId"])
 data class MovieGenreCrossRefEntity (
-    val movieId: Int,
+    val movieId: Long,
     val genreId: Int
 )

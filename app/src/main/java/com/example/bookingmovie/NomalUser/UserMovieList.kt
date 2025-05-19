@@ -1,6 +1,7 @@
 package com.example.bookingmovie.NomalUser
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -15,10 +16,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.bookingmovie.ViewModels.MovieViewModel
+import com.example.bookingmovie.data.Movie.MovieEntity
 import com.example.bookingmovie.data.Movie.MovieWithGenre
 
 @Composable
 fun UserMovieList(
+    onMovieClick: (MovieEntity) -> Unit,
     movieViewModel: MovieViewModel = viewModel()
 ) {
     val movieList by movieViewModel.allMoviesWithGenre.collectAsState()
@@ -48,7 +51,10 @@ fun UserMovieList(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(movieList) { movieWithGenre ->
-                    MovieGridItem(movieWithGenre)
+                    MovieGridItem(
+                        movieWithGenre = movieWithGenre,
+                        onClick = {onMovieClick(movieWithGenre.movie)}
+                    )
                 }
             }
         }
@@ -56,13 +62,17 @@ fun UserMovieList(
 }
 
 @Composable
-fun MovieGridItem(movieWithGenre: MovieWithGenre) {
+fun MovieGridItem(
+    onClick: () -> Unit,
+    movieWithGenre: MovieWithGenre
+) {
     val movie = movieWithGenre.movie
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(4.dp),
+            .padding(4.dp)
+            .clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(

@@ -33,14 +33,14 @@ val bottomNavItems = listOf(
     BottomNavItem.Home,
     BottomNavItem.Category,
     BottomNavItem.History,
-    BottomNavItem.Settings
+    BottomNavItem.Settings,
 )
+
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-
     NavigationBar(
         containerColor = Color.White,
         tonalElevation = 0.dp
@@ -100,7 +100,12 @@ fun UserMainScreen() {
             modifier = Modifier.padding(padding)
         ) {
             composable(BottomNavItem.Home.route) {
-                UserMovieList()
+                UserMovieList(
+                    onMovieClick = {movie ->
+                        navController.currentBackStackEntry?.savedStateHandle?.set("movie",movie)
+                        navController.navigate("movie_detail")
+                    }
+                )
             }
             composable(BottomNavItem.Category.route) {
                 MovieCategoryScreen()
@@ -110,6 +115,17 @@ fun UserMainScreen() {
             }
             composable(BottomNavItem.Settings.route) {
                 UserAccount()
+            }
+
+            composable("movie_detail"){
+                val movie = navController.previousBackStackEntry?.savedStateHandle?.get<Movie>("movie")
+                movie?.let {
+                    MovieDetailScreen(
+                        movie = it,
+                        onBack = {navController.popBackStack()},
+                        onBook = {}
+                    )
+                }
             }
         }
     }
