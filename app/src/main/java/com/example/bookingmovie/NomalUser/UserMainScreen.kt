@@ -101,7 +101,7 @@ fun UserMainScreen(appNavController: NavHostController) {
             modifier = Modifier.padding(padding)
         ) {
             composable(BottomNavItem.Home.route) {
-                UserMovieList()
+                UserMovieList(appNavController = appNavController)
             }
             composable(BottomNavItem.Category.route) {
                 MovieCategoryScreen()

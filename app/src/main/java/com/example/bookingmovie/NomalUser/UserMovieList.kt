@@ -1,38 +1,137 @@
 package com.example.bookingmovie.NomalUser
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.bookingmovie.ViewModels.MovieViewModel
 import com.example.bookingmovie.data.Movie.MovieWithGenre
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.ui.graphics.Color
 
 @Composable
-fun UserMovieList(
+fun UserMovieList(appNavController: NavHostController, movieViewModel: MovieViewModel = viewModel()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+    ) {
+        // Giao diện thanh tìm kiếm "giả"
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { appNavController.navigate("search") },
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Tìm kiếm phim...",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Danh sách phim KHÔNG CÒN thanh tìm kiếm ở đây nữa
+        UserMovieListContent(movieViewModel)
+    }
+}
+
+
+@Composable
+fun SearchScreen(
+    appNavController: NavHostController,
     movieViewModel: MovieViewModel = viewModel()
 ) {
     val movieList by movieViewModel.allMoviesWithGenre.collectAsState()
 
-    Scaffold(
-        topBar = {
+    var searchText by remember { mutableStateOf(TextFieldValue("")) }
+    var selectedGenre by remember { mutableStateOf("Tất cả") }
 
+    val genres = listOf("Tất cả") + movieList
+        .flatMap { it.genre.map { genre -> genre.genre_name } }
+        .distinct()
+
+    val filteredMovies = movieList.filter { movieWithGenre ->
+        val matchName = movieWithGenre.movie.movie_name.contains(searchText.text, ignoreCase = true)
+        val matchGenre = selectedGenre == "Tất cả" || movieWithGenre.genre.any { it.genre_name == selectedGenre }
+        matchName && matchGenre
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .statusBarsPadding()
+            .padding(horizontal = 16.dp)
+    ) {
+        // Ô tìm kiếm với nút quay lại
+        OutlinedTextField(
+            value = searchText,
+            onValueChange = { searchText = it },
+            placeholder = { Text("Tìm kiếm phim...") },
+            leadingIcon = {
+                IconButton(onClick = { appNavController.popBackStack() }) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Danh sách thể loại dạng chip
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+        ) {
+            genres.forEach { genre ->
+                FilterChip(
+                    selected = genre == selectedGenre,
+                    onClick = { selectedGenre = genre },
+                    label = { Text(genre) },
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+            }
         }
-    ) { padding ->
-        if (movieList.isEmpty()) {
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Danh sách phim
+        if (filteredMovies.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding),
+                    .padding(top = 140.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text("Không có phim nào.")
@@ -41,13 +140,75 @@ fun UserMovieList(
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 contentPadding = PaddingValues(8.dp),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxSize()
             ) {
-                items(movieList) { movieWithGenre ->
+                items(filteredMovies) { movieWithGenre ->
+                    MovieGridItem(movieWithGenre)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun UserMovieListContent(
+    movieViewModel: MovieViewModel = viewModel()
+) {
+    val movieList by movieViewModel.allMoviesWithGenre.collectAsState()
+
+    var searchText by remember { mutableStateOf(TextFieldValue("")) }
+    var selectedGenre by remember { mutableStateOf("Tất cả") }
+
+    val genres = listOf("Tất cả") + movieList.flatMap { it.genre.map { g -> g.genre_name } }.distinct()
+
+    val filteredMovies = movieList.filter { movieWithGenre ->
+        val matchName = movieWithGenre.movie.movie_name.contains(searchText.text, ignoreCase = true)
+        val matchGenre = selectedGenre == "Tất cả" || movieWithGenre.genre.any { it.genre_name == selectedGenre }
+        matchName && matchGenre
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+    ) {
+
+        // Thể loại dạng chip
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+        ) {
+            genres.forEach { genre ->
+                FilterChip(
+                    selected = genre == selectedGenre,
+                    onClick = { selectedGenre = genre },
+                    label = { Text(genre) },
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        if (filteredMovies.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Không có phim nào.")
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                contentPadding = PaddingValues(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(filteredMovies) { movieWithGenre ->
                     MovieGridItem(movieWithGenre)
                 }
             }
@@ -73,13 +234,11 @@ fun MovieGridItem(movieWithGenre: MovieWithGenre) {
                 .fillMaxWidth(),
             contentScale = ContentScale.Crop
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = movie.movie_name,
             style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center,
             maxLines = 2
         )
     }
 }
-

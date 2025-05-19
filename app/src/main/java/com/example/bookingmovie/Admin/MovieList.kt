@@ -34,6 +34,7 @@ import com.example.bookingmovie.ui.theme.BookingMovieTheme
 import com.google.accompanist.flowlayout.FlowRow
 
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieListContent(

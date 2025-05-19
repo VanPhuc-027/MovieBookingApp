@@ -109,5 +109,5 @@ fun MainScreen(appNavController: NavHostController) {
 @Composable
 fun PreviewMainScreen() {
     val navController = rememberNavController()
-    MainScreen(appNavController = navController as NavHostController)
+    MainScreen(appNavController = navController)
 }
