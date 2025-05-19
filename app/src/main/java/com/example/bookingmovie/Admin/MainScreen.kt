@@ -18,11 +18,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.bookingmovie.MovieAccount
+import com.example.bookingmovie.Account
 
 
 sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: String) {
@@ -73,7 +74,7 @@ fun BottomNavigationBar(navController: NavController) {
 }
 
 @Composable
-fun MainScreen() {
+fun MainScreen(appNavController: NavHostController) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -95,7 +96,7 @@ fun MainScreen() {
                 BookingHistory()
             }
             composable(BottomNavItem.Settings.route) {
-                MovieAccount()
+                Account(appNavController)
             }
             composable(BottomNavItem.FoodDrink.route){
                 FoodDrinkScreen()
@@ -107,5 +108,6 @@ fun MainScreen() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewMainScreen() {
-    MainScreen()
+    val navController = rememberNavController()
+    MainScreen(appNavController = navController)
 }

@@ -68,7 +68,6 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("com.google.accompanist:accompanist-flowlayout:0.30.1")
     implementation ("io.coil-kt:coil-compose:2.4.0")
-
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
