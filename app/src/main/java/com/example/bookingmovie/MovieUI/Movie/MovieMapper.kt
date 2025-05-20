@@ -2,6 +2,7 @@ package com.example.bookingmovie.MovieUI.Movie
 
 
 import com.example.bookingmovie.MovieUI.Movie.MovieUIModel
+import com.example.bookingmovie.data.Genre.GenreEntity
 import com.example.bookingmovie.data.Movie.MovieEntity
 
 fun MovieEntity.toUIModel(): MovieUIModel {
@@ -12,6 +13,13 @@ fun MovieEntity.toUIModel(): MovieUIModel {
         price = this.price,
         banner = this.banner,
         video = this.video,
-        year = this.year
+        year = this.year,
+        genres = emptyList()
+    )
+}
+fun GenreEntity.toUIModel(): GenreUIModel {
+    return GenreUIModel(
+        genre_id = this.genre_id,
+        genre_name = this.genre_name
     )
 }

@@ -20,8 +20,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.TopAppBar
 import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.rememberAsyncImagePainter
+import com.example.bookingmovie.MovieUI.Movie.GenreUIModel
 import com.example.bookingmovie.MovieUI.Movie.MovieUIModel
-
 
 @Composable
 fun MovieDetailScreen(
@@ -69,7 +69,13 @@ fun MovieDetailScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(movie.movie_name, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-            Text("Thể loại: ${movie.description}")
+            Text(
+                text = "Thể loại: ${
+                    if (movie.genres.isNotEmpty()) movie.genres.joinToString { it.genre_name }
+                    else "Chưa cập nhật"
+                }"
+
+            )
             Text("Khởi chiếu: ${movie.year}")
             Text("Giá vé: ${movie.price}", color = Color.Red)
 
@@ -125,7 +131,11 @@ fun Prreview5(){
         price = 90000.0,
         banner = "https://media.themoviedb.org/t/p/w600_and_h900_bestv2/wRrGBv4uNofBVyShxfS0iugbcm8.jpg",
         video = "https://www.youtube.com/watch?v=dQw4w9WgXcQ", // Giả sử có trailer
-        year = 2025
+        year = 2025,
+        genres = listOf(
+            GenreUIModel(1, "Hành động"),
+            GenreUIModel(2, "Tâm lý")
+        )
     )
 
     MovieDetailScreen(

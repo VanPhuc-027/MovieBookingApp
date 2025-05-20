@@ -229,7 +229,7 @@ fun MovieGridItem(
     appNavController: NavHostController
 ) {
     val movie = movieWithGenre.movie
-    val uiModel = movie.toUIModel()
+    val uiModel = movieWithGenre.toUIModel()
     Column(
         modifier = Modifier
             .fillMaxWidth()
