@@ -33,14 +33,12 @@ import com.example.bookingmovie.data.Seat.SeatEntity
 
 sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: String) {
     object Home : BottomNavItem("home", Icons.Filled.Home, "Trang chủ")
-    object Category : BottomNavItem("category", Icons.Filled.Category, "Thể loại")
     object History : BottomNavItem("history", Icons.Outlined.History, "Lịch sử đặt")
     object Settings : BottomNavItem("settings", Icons.Filled.Person, "Tôi")
 }
 
 val bottomNavItems = listOf(
     BottomNavItem.Home,
-    BottomNavItem.Category,
     BottomNavItem.History,
     BottomNavItem.Settings,
 )
@@ -109,9 +107,6 @@ fun UserMainScreen(appNavController: NavHostController,itemDao: ItemDao,seatDao:
         ) {
             composable(BottomNavItem.Home.route) {
                 UserMovieList(appNavController = innerNavController)
-            }
-            composable(BottomNavItem.Category.route) {
-                MovieCategoryScreen()
             }
             composable(BottomNavItem.History.route) {
                 BookingHistoryScreen()
