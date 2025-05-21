@@ -10,7 +10,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -36,7 +35,6 @@ fun RegisterScreenContent(
     isPasswordVisible: Boolean,
     onPasswordVisibilityChange: () -> Unit,
     onRegisterClick: () -> Unit,
-    onClearAllClick: () -> Unit,
     onBackClick:() ->Unit
 ) {
     Column(
@@ -111,14 +109,6 @@ fun RegisterScreenContent(
         }
 
         Button(
-            onClick = onClearAllClick,
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
-        ) {
-            Text("Xoá tất cả tài khoản (Test)")
-        }
-
-        Button(
             onClick = onBackClick,
             modifier = Modifier.fillMaxWidth(),
 
@@ -161,10 +151,6 @@ fun RegisterScreen(navController : NavController) {
                         Toast.makeText(context, "Vui lòng nhập đầy đủ thông tin hợp lệ", Toast.LENGTH_SHORT).show()
                     }
                 },
-                onClearAllClick = {
-                    viewModel.clearAllUsers()
-                    Toast.makeText(context, "Tất cả tài khoản đã được xóa", Toast.LENGTH_SHORT).show()
-                },
                 onBackClick = {
                     navController.popBackStack()
                 }
@@ -189,7 +175,6 @@ fun RegisterScreenPreview() {
             isPasswordVisible = false,
             onPasswordVisibilityChange = {},
             onRegisterClick = {},
-            onClearAllClick = {},
             onBackClick = {}
         )
     }

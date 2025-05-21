@@ -18,7 +18,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     var gmail by mutableStateOf("")
     var phoneNumber by mutableStateOf("")
     var password by mutableStateOf("")
-    var role by mutableStateOf("User")  // hoặc để mặc định là "User"
+    var role by mutableStateOf("User")
 
     fun insertUser() {
         viewModelScope.launch {
@@ -45,21 +45,6 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                 onSuccess()
             } else {
                 onError()
-            }
-        }
-    }
-    fun ensureAdminExists() {
-        viewModelScope.launch {
-            val existing = repo.getUserByUsername("admin")
-            if (existing == null) {
-                val admin = UserEntity(
-                    username = "admin",
-                    gmail = "admin@gmail.com",
-                    phone_number = 123456789,
-                    password = "admin",
-                    role = "admin"
-                )
-                repo.insertUser(admin)
             }
         }
     }

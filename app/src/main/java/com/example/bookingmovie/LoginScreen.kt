@@ -35,10 +35,6 @@ import kotlinx.coroutines.launch
 fun LoginScreen(navController: NavController) {
     val viewModel: LoginViewModel = viewModel()
 
-    LaunchedEffect(Unit) {
-        viewModel.ensureAdminExists()
-    }
-
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
