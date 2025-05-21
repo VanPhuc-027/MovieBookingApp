@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,6 +24,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.bookingmovie.MovieUI.Movie.MovieUIModel
+import com.example.bookingmovie.data.Booking.BookingEntity
+import com.example.bookingmovie.data.Item.ItemDao
+import com.example.bookingmovie.data.Room.RoomDao
+import com.example.bookingmovie.data.Room.RoomEntity
+import com.example.bookingmovie.data.Seat.SeatDao
+import com.example.bookingmovie.data.Seat.SeatEntity
 
 sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: String) {
     object Home : BottomNavItem("home", Icons.Filled.Home, "Trang chủ")
@@ -90,7 +97,7 @@ fun BottomNavigationBar(navController: NavController) {
 }
 
 @Composable
-fun UserMainScreen(appNavController: NavHostController) {
+fun UserMainScreen(appNavController: NavHostController,itemDao: ItemDao,seatDao: SeatDao,roomDao: RoomDao) {
     val innerNavController = rememberNavController()
     Scaffold(
         bottomBar = { BottomNavigationBar(innerNavController) }
@@ -125,11 +132,43 @@ fun UserMainScreen(appNavController: NavHostController) {
                         movie = it,
                         onBack = { innerNavController.popBackStack() },
                         onBook = {
-                            // Xử lý chuyển sang màn booking tùy bạn
+                            innerNavController.currentBackStackEntry?.savedStateHandle?.set("selectedMovie", movie)
+                            innerNavController.navigate("booking/${movie.movie_id}")
                         }
                     )
                 }
             }
+            composable("booking/{movieId}") { backStackEntry ->
+                val movie = innerNavController
+                    .previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.get<MovieUIModel>("selectedMovie")
+
+                movie?.let {
+                    val allRooms by roomDao.getAllRooms().collectAsState(initial = emptyList())
+                    val selectedRoomId = allRooms.firstOrNull()?.room_id ?: 0
+                    val seats by seatDao.getSeatsByRoomId(selectedRoomId).collectAsState(initial = emptyList())
+
+
+                    val foodItems by itemDao.getAllItems().collectAsState(initial = emptyList())
+
+                    val insertBooking = { booking: BookingEntity ->
+                        println("Booking đã được lưu: $booking")
+                    }
+
+                    BookingScreen(
+                        movie = it,
+                        onBack = { innerNavController.popBackStack() },
+                        onBookingSuccess = { innerNavController.popBackStack() },
+                        roomList = allRooms,
+                        seatListProvider = { seats },
+                        insertBooking = insertBooking,
+                        foodItems = foodItems,
+                        seatDao = seatDao
+                    )
+                }
+            }
+
         }
     }
 }
@@ -138,5 +177,5 @@ fun UserMainScreen(appNavController: NavHostController) {
 @Composable
 fun PreviewMainScreen() {
     val navController = rememberNavController()
-    UserMainScreen(appNavController = navController as NavHostController)
+    //UserMainScreen(appNavController = navController as NavHostController)
 }

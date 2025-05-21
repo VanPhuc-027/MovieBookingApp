@@ -76,7 +76,7 @@ fun MovieDetailScreen(
                 }"
 
             )
-            Text("Khởi chiếu: ${movie.year}")
+            Text("Năm sản xuất: ${movie.year}")
             Text("Giá vé: ${movie.price}", color = Color.Red)
 
             Spacer(modifier = Modifier.height(8.dp))

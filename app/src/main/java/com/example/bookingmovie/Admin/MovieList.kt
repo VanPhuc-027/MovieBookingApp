@@ -155,7 +155,6 @@ fun MovieList(
 ) {
     var searchText by remember { mutableStateOf("") }
     var selectedGenre by remember { mutableStateOf("Tất cả") }
-    //val allGenres = listOf("Tất cả", "Lãng mạn", "Hoạt hình", "Chiến tranh", "Tình cảm", "Hành động")
     val allGenresFromDb by genreViewModel.genreNames.collectAsState()
     val allGenres = listOf("Tất cả") + allGenresFromDb
     val movies by viewModel.allMoviesWithGenre.collectAsState()
