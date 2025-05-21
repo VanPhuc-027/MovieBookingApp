@@ -3,7 +3,6 @@ package com.example.bookingmovie.NomalUser
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.History
@@ -26,14 +25,12 @@ import com.example.bookingmovie.MovieUI.Movie.MovieUIModel
 
 sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: String) {
     object Home : BottomNavItem("home", Icons.Filled.Home, "Trang chủ")
-    object Category : BottomNavItem("category", Icons.Filled.Category, "Thể loại")
     object History : BottomNavItem("history", Icons.Outlined.History, "Lịch sử đặt")
-    object Settings : BottomNavItem("settings", Icons.Filled.Person, "Tôi")
+    object Settings : BottomNavItem("settings", Icons.Filled.Person, "Tài khoản")
 }
 
 val bottomNavItems = listOf(
     BottomNavItem.Home,
-    BottomNavItem.Category,
     BottomNavItem.History,
     BottomNavItem.Settings,
 )
@@ -103,9 +100,6 @@ fun UserMainScreen(appNavController: NavHostController) {
             composable(BottomNavItem.Home.route) {
                 UserMovieList(appNavController = innerNavController)
             }
-            composable(BottomNavItem.Category.route) {
-                MovieCategoryScreen()
-            }
             composable(BottomNavItem.History.route) {
                 BookingHistoryScreen()
             }
@@ -138,5 +132,5 @@ fun UserMainScreen(appNavController: NavHostController) {
 @Composable
 fun PreviewMainScreen() {
     val navController = rememberNavController()
-    UserMainScreen(appNavController = navController as NavHostController)
+    UserMainScreen(appNavController = navController)
 }

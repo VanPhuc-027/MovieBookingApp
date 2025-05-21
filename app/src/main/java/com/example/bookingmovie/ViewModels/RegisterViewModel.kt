@@ -20,7 +20,7 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
                 gmail = gmail,
                 phone_number = phone,
                 password = password,
-                role = role
+                role = "user"
             )
             userDao.insertUser(newUser)
         }

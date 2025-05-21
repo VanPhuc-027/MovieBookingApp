@@ -36,6 +36,7 @@ fun RegisterScreenContent(
     isPasswordVisible: Boolean,
     onPasswordVisibilityChange: () -> Unit,
     onRegisterClick: () -> Unit,
+    onClearAllClick: () -> Unit,
     onBackClick:() ->Unit
 ) {
     Column(
@@ -110,6 +111,14 @@ fun RegisterScreenContent(
         }
 
         Button(
+            onClick = onClearAllClick,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+        ) {
+            Text("Xoá tất cả tài khoản (Test)")
+        }
+
+        Button(
             onClick = onBackClick,
             modifier = Modifier.fillMaxWidth(),
 
@@ -152,6 +161,10 @@ fun RegisterScreen(navController : NavController) {
                         Toast.makeText(context, "Vui lòng nhập đầy đủ thông tin hợp lệ", Toast.LENGTH_SHORT).show()
                     }
                 },
+                onClearAllClick = {
+                    viewModel.clearAllUsers()
+                    Toast.makeText(context, "Tất cả tài khoản đã được xóa", Toast.LENGTH_SHORT).show()
+                },
                 onBackClick = {
                     navController.popBackStack()
                 }
@@ -176,6 +189,7 @@ fun RegisterScreenPreview() {
             isPasswordVisible = false,
             onPasswordVisibilityChange = {},
             onRegisterClick = {},
+            onClearAllClick = {},
             onBackClick = {}
         )
     }

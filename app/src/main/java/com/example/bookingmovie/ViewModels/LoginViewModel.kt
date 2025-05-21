@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     private val db = AppDatabase.getDatabase(application)
-    private val repo = UserRepository(db.userDao())
+    internal val repo = UserRepository(db.userDao())
 
     var username by mutableStateOf("")
     var gmail by mutableStateOf("")
@@ -30,6 +30,37 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                 role = role
             )
             repo.insertUser(user)
+        }
+    }
+
+    fun loginUser(
+        inputUsername: String,
+        inputPassword: String,
+        onSuccess: () -> Unit,
+        onError: () -> Unit
+    ) {
+        viewModelScope.launch {
+            val user = repo.getUserByUsername(inputUsername)
+            if (user != null && user.password == inputPassword) {
+                onSuccess()
+            } else {
+                onError()
+            }
+        }
+    }
+    fun ensureAdminExists() {
+        viewModelScope.launch {
+            val existing = repo.getUserByUsername("admin")
+            if (existing == null) {
+                val admin = UserEntity(
+                    username = "admin",
+                    gmail = "admin@gmail.com",
+                    phone_number = 123456789,
+                    password = "admin",
+                    role = "admin"
+                )
+                repo.insertUser(admin)
+            }
         }
     }
 }
