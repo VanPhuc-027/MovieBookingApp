@@ -26,24 +26,26 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.bookingmovie.ViewModels.LoginViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(navController: NavController) {
-    val viewModel: LoginViewModel = viewModel()
+fun LoginScreen(navController: NavController,loginViewModel: LoginViewModel) {
 
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var loginError by remember { mutableStateOf(false) }
+    var hasNavigated by rememberSaveable { mutableStateOf(false) }
+    var isLoading by rememberSaveable { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White) // Nền trắng
+            .background(Color.White)
     ) {
         Column(
             modifier = Modifier
@@ -113,27 +115,36 @@ fun LoginScreen(navController: NavController) {
 
             Button(
                 onClick = {
-                    viewModel.loginUser(
+                    loginError = false
+                    isLoading = true
+                    loginViewModel.loginUser(
                         inputUsername = username,
                         inputPassword = password,
-                        onSuccess = {
-                            viewModel.viewModelScope.launch {
-                                val user = viewModel.repo.getUserByUsername(username)
-                                user?.let {
-                                    when (it.role) {
-                                        "admin" -> navController.navigate("main") {
+                        onSuccess = { role ->
+                            if (!hasNavigated) {
+                                val user = loginViewModel.currentUser
+                                isLoading = false
+                                when (role) {
+                                    "admin" -> {
+                                        navController.navigate("main") {
                                             popUpTo("login") { inclusive = true }
                                         }
-                                        "user" -> navController.navigate("mainUser") {
-                                            popUpTo("login") { inclusive = true }
-                                        }
-                                        else -> loginError = true
                                     }
+                                    "user" -> {
+                                        if (user != null) {
+                                            navController.navigate("mainUser/${user.user_id}") {
+                                                popUpTo("login") { inclusive = true }
+                                            }
+                                        }
+                                    }
+                                    else -> loginError = true
                                 }
+                                hasNavigated = true
                             }
                         },
                         onError = {
                             loginError = true
+                            isLoading = false
                         }
                     )
                 },
@@ -141,12 +152,13 @@ fun LoginScreen(navController: NavController) {
                     .fillMaxWidth()
                     .height(48.dp),
                 shape = RoundedCornerShape(12.dp),
+                enabled = !isLoading, // disable khi đang xử lý
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Black,
+                    containerColor = if (!isLoading) Color.Black else Color.Gray,
                     contentColor = Color.White
                 )
             ) {
-                Text(text = "Đăng nhập")
+                Text(text = if (!isLoading) "Đăng nhập" else "Đang xử lý...")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -177,6 +189,7 @@ fun LoginScreen(navController: NavController) {
 @Composable
 fun GreetingPreview() {
     BookingMovieTheme {
-        LoginScreen(navController = rememberNavController())
+        //LoginScreen(navController = rememberNavController())
     }
 }
+

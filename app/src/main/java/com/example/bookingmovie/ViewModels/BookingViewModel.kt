@@ -13,22 +13,40 @@ class BookingViewModel(
 ) : ViewModel() {
 
     fun confirmBooking(
-        booking: BookingEntity,
-        roomId: Int,
+        userId: Int, // 👈 Thêm userId ở đây
+        showDate: String,
+        showTime: String,
         selectedSeats: List<String>,
+        selectedFood: Map<String, Int>,
+        paymentMethod: String,
+        totalPrice: Double,
+        bookingTime: String,
+        status: String = "Còn hạn",
+        roomId: Int,
         onSuccess: () -> Unit
     ) {
         viewModelScope.launch {
-            // 1. Thêm booking vào DB
+            val booking = BookingEntity(
+                userId = userId,
+                showDate = showDate,
+                showTime = showTime,
+                numberOfTickets = selectedSeats.size,
+                selectedSeats = selectedSeats.joinToString(","),
+                selectedFood = selectedFood.entries.joinToString { "${it.key}:${it.value}" },
+                paymentMethod = paymentMethod,
+                totalPrice = totalPrice,
+                bookingTime = bookingTime,
+                status = status
+            )
+
             bookingDao.insertBooking(booking)
 
-            // 2. Cập nhật trạng thái các ghế đã chọn
             selectedSeats.forEach { seatNumber ->
                 seatDao.updateSeatStatus(seatNumber, roomId, isBooked = true)
             }
 
-            // 3. Gọi callback báo thành công
             onSuccess()
         }
     }
 }
+

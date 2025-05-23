@@ -2,7 +2,7 @@ package com.example.bookingmovie.data.User
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-
+import java.io.Serializable
 
 @Entity(tableName = "users")
 data class UserEntity(
@@ -12,4 +12,5 @@ data class UserEntity(
     val phone_number : Int,
     val password : String,
     val role : String
-)
+) : Serializable
+

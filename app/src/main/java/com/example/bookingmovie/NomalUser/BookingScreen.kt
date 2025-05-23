@@ -33,6 +33,7 @@ import com.example.bookingmovie.data.Item.ItemEntity
 import com.example.bookingmovie.data.Room.RoomEntity
 import com.example.bookingmovie.data.Seat.SeatDao
 import com.example.bookingmovie.data.Seat.SeatEntity
+import com.example.bookingmovie.data.User.UserEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,6 +41,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun BookingScreen(
     movie: MovieUIModel,
+    currentUser: UserEntity,
     onBack: () -> Unit,
     onBookingSuccess: () -> Unit,
     roomList: List<RoomEntity>,
@@ -48,7 +50,9 @@ fun BookingScreen(
     foodItems: List<ItemEntity>,
     seatDao: SeatDao,
 
-) {
+    ) {
+
+
     var selectedRoomId by remember { mutableStateOf(roomList.firstOrNull()?.room_id ?: 0) }
     var selectedSeats by remember { mutableStateOf(mutableSetOf<String>()) }
     val selectedFood = remember { mutableStateMapOf<String, Int>() }
@@ -129,6 +133,7 @@ fun BookingScreen(
                             }
 
                             val booking = BookingEntity(
+                                userId = currentUser.user_id,
                                 showDate = "2025-06-01", // hardcode
                                 showTime = "18:00",
                                 numberOfTickets = selectedSeats.size,
@@ -140,7 +145,7 @@ fun BookingScreen(
                                     qty * itemPrice
                                 },
                                 bookingTime = "643",
-                                status = "Còn hạn",
+                                status = "Còn hạn"
 
                             )
 

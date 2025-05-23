@@ -20,6 +20,8 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     var password by mutableStateOf("")
     var role by mutableStateOf("User")
 
+    var currentUser by mutableStateOf<UserEntity?>(null)
+
     fun insertUser() {
         viewModelScope.launch {
             val user = UserEntity(
@@ -36,16 +38,18 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     fun loginUser(
         inputUsername: String,
         inputPassword: String,
-        onSuccess: () -> Unit,
+        onSuccess: (String) -> Unit,
         onError: () -> Unit
     ) {
         viewModelScope.launch {
             val user = repo.getUserByUsername(inputUsername)
-            if (user != null && user.password == inputPassword) {
-                onSuccess()
+            if (user != null && repo.checkLogin(inputUsername, inputPassword)) {
+                currentUser = user
+                onSuccess(user.role.lowercase())
             } else {
                 onError()
             }
         }
     }
+
 }
