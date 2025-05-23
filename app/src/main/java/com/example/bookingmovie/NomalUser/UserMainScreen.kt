@@ -3,7 +3,6 @@ package com.example.bookingmovie.NomalUser
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.History
@@ -30,11 +29,12 @@ import com.example.bookingmovie.data.Room.RoomDao
 import com.example.bookingmovie.data.Room.RoomEntity
 import com.example.bookingmovie.data.Seat.SeatDao
 import com.example.bookingmovie.data.Seat.SeatEntity
+import com.example.bookingmovie.data.User.UserEntity
 
 sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: String) {
     object Home : BottomNavItem("home", Icons.Filled.Home, "Trang chủ")
     object History : BottomNavItem("history", Icons.Outlined.History, "Lịch sử đặt")
-    object Settings : BottomNavItem("settings", Icons.Filled.Person, "Tôi")
+    object Settings : BottomNavItem("settings", Icons.Filled.Person, "Tài khoản")
 }
 
 val bottomNavItems = listOf(
@@ -95,7 +95,7 @@ fun BottomNavigationBar(navController: NavController) {
 }
 
 @Composable
-fun UserMainScreen(appNavController: NavHostController,itemDao: ItemDao,seatDao: SeatDao,roomDao: RoomDao) {
+fun UserMainScreen(appNavController: NavHostController,itemDao: ItemDao,seatDao: SeatDao,roomDao: RoomDao,currentUser: UserEntity) {
     val innerNavController = rememberNavController()
     Scaffold(
         bottomBar = { BottomNavigationBar(innerNavController) }
@@ -153,6 +153,7 @@ fun UserMainScreen(appNavController: NavHostController,itemDao: ItemDao,seatDao:
 
                     BookingScreen(
                         movie = it,
+                        currentUser = currentUser,
                         onBack = { innerNavController.popBackStack() },
                         onBookingSuccess = { innerNavController.popBackStack() },
                         roomList = allRooms,

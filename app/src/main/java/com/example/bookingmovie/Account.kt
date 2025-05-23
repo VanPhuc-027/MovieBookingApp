@@ -1,6 +1,5 @@
 package com.example.bookingmovie
 
-import android.accounts.Account
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,24 +18,28 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.*
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.text.font.FontWeight
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Account(appNavController: NavHostController) {
     val showLogoutDialog = remember { mutableStateOf(false) }
+    val showChangePasswordDialog = remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -70,7 +73,7 @@ fun Account(appNavController: NavHostController) {
                 }
             }
 
-            Divider(modifier = Modifier.padding(vertical = 16.dp))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
 
             // Item: Báo cáo doanh thu
             AccountOptionItem(
@@ -83,12 +86,12 @@ fun Account(appNavController: NavHostController) {
             AccountOptionItem(
                 icon = Icons.Default.Lock,
                 text = "Đổi mật khẩu",
-                onClick = { /* TODO */ }
+                onClick = { showChangePasswordDialog.value = true }
             )
 
             // Item: Đăng xuất
             AccountOptionItem(
-                icon = Icons.Default.Logout,
+                icon = Icons.AutoMirrored.Filled.Logout,
                 text = "Đăng xuất",
                 onClick = {
                     showLogoutDialog.value = true
@@ -124,6 +127,17 @@ fun Account(appNavController: NavHostController) {
                     }
                 )
             }
+
+            if(showChangePasswordDialog.value){
+                ChangePasswordDialog(
+                    onDismiss = { showChangePasswordDialog.value = false },
+                    onConfirm = {
+                        oldPass, newPass ->
+                        //Todo: change password
+                        showChangePasswordDialog.value = false
+                    }
+                )
+            }
         }
     }
 }
@@ -146,3 +160,50 @@ fun AccountOptionItem(icon: ImageVector, text: String, onClick: () -> Unit) {
         Text(text, fontSize = 16.sp)
     }
 }
+
+@Composable
+fun ChangePasswordDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (String, String) -> Unit
+) {
+    var oldPassword by remember { mutableStateOf("") }
+    var newPassword by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Đổi mật khẩu") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = oldPassword,
+                    onValueChange = { oldPassword = it },
+                    label = { Text("Mật khẩu cũ") },
+                    singleLine = true,
+                    visualTransformation = PasswordVisualTransformation()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = newPassword,
+                    onValueChange = { newPassword = it },
+                    label = { Text("Mật khẩu mới") },
+                    singleLine = true,
+                    visualTransformation = PasswordVisualTransformation()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                onConfirm(oldPassword, newPassword)
+            }) {
+                Text("Xác nhận")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Hủy")
+            }
+        }
+    )
+}
+
+

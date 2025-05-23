@@ -20,11 +20,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.bookingmovie.ViewModels.MovieViewModel
-import com.example.bookingmovie.data.Movie.MovieEntity
 import com.example.bookingmovie.data.Movie.MovieWithGenre
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.graphics.Color
 import com.example.bookingmovie.MovieUI.Movie.toUIModel
@@ -64,7 +62,6 @@ fun UserMovieList(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Danh sách phim KHÔNG CÒN thanh tìm kiếm ở đây nữa
         UserMovieListContent(appNavController,movieViewModel)
     }
 }
@@ -172,8 +169,7 @@ fun UserMovieListContent(
 
     val filteredMovies = movieList.filter { movieWithGenre ->
         val matchName = movieWithGenre.movie.movie_name.contains(searchText.text, ignoreCase = true)
-        val matchGenre = selectedGenre == "Tất cả" || movieWithGenre.genre.any { it.genre_name == selectedGenre }
-        matchName && matchGenre
+        matchName
     }
 
     Column(
@@ -181,24 +177,6 @@ fun UserMovieListContent(
             .fillMaxSize()
             .padding(8.dp)
     ) {
-
-        // Thể loại dạng chip
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-        ) {
-            genres.forEach { genre ->
-                FilterChip(
-                    selected = genre == selectedGenre,
-                    onClick = { selectedGenre = genre },
-                    label = { Text(genre) },
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         if (filteredMovies.isEmpty()) {
             Box(

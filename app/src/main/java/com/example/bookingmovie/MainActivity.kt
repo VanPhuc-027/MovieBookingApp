@@ -5,13 +5,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.bookingmovie.Admin.MainScreen
 import com.example.bookingmovie.NomalUser.UserMainScreen
+import com.example.bookingmovie.ViewModels.LoginViewModel
 import com.example.bookingmovie.ui.screens.RegisterScreen
 import com.example.bookingmovie.data.AppDatabase
+import com.example.bookingmovie.data.User.UserEntity
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,15 +34,35 @@ fun MovieAppBooking(){
     val itemDao = db.itemDao()
     val roomDao = db.roomDao()
     val seatDao = db.seatDao()
+    val loginViewModel: LoginViewModel =   viewModel()
+
     NavHost(
         navController = navController,
-        startDestination = "mainUser"
+        startDestination = "login"
     ){
-        composable("login") { LoginScreen(navController)  }
+        composable("login") { LoginScreen(navController,loginViewModel)  }
         composable("main"){ MainScreen(appNavController = navController) }
         composable("register"){ RegisterScreen(navController) }
-        composable("mainUser") {UserMainScreen(appNavController = navController, itemDao = itemDao, seatDao = seatDao,roomDao = roomDao) }
-
+        composable("mainUser/{userId}") { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")?.toIntOrNull()
+            userId?.let { id ->
+                val userState = androidx.compose.runtime.produceState<com.example.bookingmovie.data.User.UserEntity?>(initialValue = null, id) {
+                    value = db.userDao().getUserById(id)
+                }
+                val user = userState.value
+                if (user != null) {
+                    UserMainScreen(
+                        appNavController = navController,
+                        itemDao = itemDao,
+                        seatDao = seatDao,
+                        roomDao = roomDao,
+                        currentUser = user
+                    )
+                } else {
+                    // Optionally show a loading indicator here
+                }
+            } ?: navController.navigate("login")
+        }
     }
 }
 

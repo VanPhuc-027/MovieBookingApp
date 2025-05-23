@@ -32,7 +32,7 @@ fun UserAccount(appNavController: NavHostController) {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Xin chào, ad",
+                        text = "Tài khoản",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
@@ -54,7 +54,7 @@ fun UserAccount(appNavController: NavHostController) {
         ) {
             MenuItem(icon = Icons.Default.Favorite, text = "Yêu thích") { /* TODO */ }
             MenuItem(icon = Icons.Default.List, text = "Danh sách") { /* TODO */ }
-            MenuItem(icon = Icons.Default.Person, text = "Tài khoản") { /* TODO */ }
+            MenuItem(icon = Icons.Default.Person, text = "Thông tin cá nhân") { /* TODO */ }
 
             Spacer(modifier = Modifier.height(16.dp))
 

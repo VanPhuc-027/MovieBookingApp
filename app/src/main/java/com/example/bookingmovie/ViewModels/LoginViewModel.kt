@@ -12,13 +12,13 @@ import kotlinx.coroutines.launch
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     private val db = AppDatabase.getDatabase(application)
-    private val repo = UserRepository(db.userDao())
+    internal val repo = UserRepository(db.userDao())
 
     var username by mutableStateOf("")
     var gmail by mutableStateOf("")
     var phoneNumber by mutableStateOf("")
     var password by mutableStateOf("")
-    var role by mutableStateOf("User")  // hoặc để mặc định là "User"
+    var role by mutableStateOf("User")
 
     fun insertUser() {
         viewModelScope.launch {
@@ -30,6 +30,22 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                 role = role
             )
             repo.insertUser(user)
+        }
+    }
+
+    fun loginUser(
+        inputUsername: String,
+        inputPassword: String,
+        onSuccess: () -> Unit,
+        onError: () -> Unit
+    ) {
+        viewModelScope.launch {
+            val user = repo.getUserByUsername(inputUsername)
+            if (user != null && user.password == inputPassword) {
+                onSuccess()
+            } else {
+                onError()
+            }
         }
     }
 }
