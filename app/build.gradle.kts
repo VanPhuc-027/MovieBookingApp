@@ -50,6 +50,7 @@ dependencies {
     implementation ("com.google.accompanist:accompanist-permissions:0.30.1")
     implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
 
+
     implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation("androidx.compose.material:material:1.7.8")
     implementation(libs.androidx.core.ktx)
@@ -76,6 +77,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:11.1.0")
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
     // Dành cho KSP

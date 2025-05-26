@@ -94,7 +94,6 @@ fun SearchScreen(
             .statusBarsPadding()
             .padding(horizontal = 16.dp)
     ) {
-        // Ô tìm kiếm với nút quay lại
         OutlinedTextField(
             value = searchText,
             onValueChange = { searchText = it },
@@ -110,8 +109,6 @@ fun SearchScreen(
         )
 
         Spacer(modifier = Modifier.height(8.dp))
-
-        // Danh sách thể loại dạng chip
         Row(
             modifier = Modifier
                 .fillMaxWidth()

@@ -13,7 +13,7 @@ class BookingViewModel(
 ) : ViewModel() {
 
     fun confirmBooking(
-        userId: Int, // 👈 Thêm userId ở đây
+        userId: Int,
         showDate: String,
         showTime: String,
         selectedSeats: List<String>,
@@ -38,13 +38,11 @@ class BookingViewModel(
                 bookingTime = bookingTime,
                 status = status
             )
-
             bookingDao.insertBooking(booking)
 
             selectedSeats.forEach { seatNumber ->
                 seatDao.updateSeatStatus(seatNumber, roomId, isBooked = true)
             }
-
             onSuccess()
         }
     }

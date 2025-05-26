@@ -36,11 +36,6 @@ fun MovieCategory(viewModel: GenreViewModel=androidx.lifecycle.viewmodel.compose
     var newCategory by remember { mutableStateOf("") }
     var isEditing by remember { mutableStateOf(false) }
     var editingIndex by remember { mutableStateOf(-1) }
-    var categories by remember {
-        mutableStateOf(
-            mutableListOf("Lãng Mạn", "Hoạt Hình", "Chiến Tranh", "Tình Cảm", "Hành Động")
-        )
-    }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(

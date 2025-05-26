@@ -67,11 +67,30 @@ class MovieViewModel (application: Application) : AndroidViewModel(application){
     fun addMovieWithGenres(movie: MovieEntity, genreIds: List<Int>) {
         viewModelScope.launch {
             val movieId = movieDao.insertMovie(movie)
-            genreIds.forEach { genreId ->
+
+            val  movieWithId = movie.copy(movie_id = movieId)
+            genreIds.forEach {genreId ->
                 movieGenreCrossRefDao.insertCrossRef(MovieGenreCrossRefEntity(movieId = movieId, genreId = genreId))
             }
+            val db =AppDatabase.getDatabase(getApplication())
+            val roomDao = db.roomDao()
+            val showtimeDao = db.showtimeDao()
+
+            val rooms = roomDao.getAllRoomsOnce()
+            val timeRange = listOf("09h-11h", "13h-15h", "17h-19h", "20h-22h")
+            val showtimes = mutableListOf<com.example.bookingmovie.data.Showtime.ShowtimeEntity>()
+            for (room in rooms) {
+                for (time in timeRange) {
+                    showtimes.add(
+                        com.example.bookingmovie.data.Showtime.ShowtimeEntity(
+                            movieId = movieId,
+                            roomId = room.room_id,
+                            showTime = time
+                        )
+                    )
+                }
+            }
+            showtimeDao.insertShowtimes(showtimes)
         }
     }
-
-
 }

@@ -1,7 +1,10 @@
 package com.example.bookingmovie.NomalUser
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -18,10 +21,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.TopAppBar
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.rememberAsyncImagePainter
 import com.example.bookingmovie.MovieUI.Movie.GenreUIModel
 import com.example.bookingmovie.MovieUI.Movie.MovieUIModel
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
+
 
 @Composable
 fun MovieDetailScreen(
@@ -81,14 +91,6 @@ fun MovieDetailScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Button(
-                onClick = { /* TODO: mở trailer */ },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007BFF))
-            ) {
-                Text("XEM TRAILER", color = Color.White)
-            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -102,25 +104,45 @@ fun MovieDetailScreen(
             Text(movie.description)
 
             Spacer(modifier = Modifier.height(16.dp))
+            fun extractYoutubeVideoId(url: String): String {
+                val regex = Regex("(?:v=|youtu\\.be/)([\\w-]{11})")
+                return regex.find(url)?.groupValues?.get(1) ?: ""
+            }
 
             Text("Video Trailer", fontWeight = FontWeight.Bold)
-            Box(
+            YouTubePlayerScreen(
+                videoId = extractYoutubeVideoId(movie.video.toString()),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
-                    .background(Color.Black),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    Icons.Default.PlayCircle,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(64.dp)
-                )
-            }
+            )
+
         }
     }
 }
+@Composable
+fun YouTubePlayerScreen(videoId: String, modifier: Modifier = Modifier) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    AndroidView(
+        modifier = modifier,
+        factory = { context ->
+            YouTubePlayerView(context).apply {
+                lifecycleOwner.lifecycle.addObserver(this)
+
+                addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
+                    override fun onReady(youTubePlayer: YouTubePlayer) {
+                        youTubePlayer.cueVideo(videoId, 0f)
+                    }
+                })
+            }
+        }
+    )
+}
+
+
+
+
 @Preview()
 @Composable
 fun Prreview5(){

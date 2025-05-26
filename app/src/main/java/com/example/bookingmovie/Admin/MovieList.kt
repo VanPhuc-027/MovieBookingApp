@@ -5,7 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -215,19 +217,58 @@ fun AddMovieScreen(
     var year by remember { mutableStateOf("") }
     val selectedGenres = remember { mutableStateListOf<Int>() }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp)) {
+    // Thêm state scroll
+    val scrollState = rememberScrollState()
 
-        //Text("Thêm Phim", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .padding(16.dp)
+    ) {
         Spacer(Modifier.height(8.dp))
 
-        OutlinedTextField(value = movieName, onValueChange = { movieName = it }, label = { Text("Tên phim") }, modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("Mô tả") }, modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(value = price, onValueChange = { price = it }, label = { Text("Giá vé") }, modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(value = banner, onValueChange = { banner = it }, label = { Text("Banner URL") }, modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(value = video, onValueChange = { video = it }, label = { Text("Trailer URL") }, modifier = Modifier.fillMaxWidth())
-        OutlinedTextField(value = year, onValueChange = { year = it }, label = { Text("Năm sản xuất") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(
+            value = movieName,
+            onValueChange = { movieName = it },
+            label = { Text("Tên phim") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            value = description,
+            onValueChange = { description = it },
+            label = { Text("Mô tả") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            value = price,
+            onValueChange = { price = it },
+            label = { Text("Giá vé") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            value = banner,
+            onValueChange = { banner = it },
+            label = { Text("Banner URL") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            value = video,
+            onValueChange = { video = it },
+            label = { Text("Trailer URL") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            value = year,
+            onValueChange = { year = it },
+            label = { Text("Năm sản xuất") },
+            modifier = Modifier.fillMaxWidth()
+        )
 
         Spacer(Modifier.height(12.dp))
         Text("Chọn thể loại:", fontWeight = FontWeight.Bold)
@@ -251,31 +292,40 @@ fun AddMovieScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-            Button(onClick = onCancel, colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)) {
+        Row(
+            horizontalArrangement = Arrangement.End,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Button(
+                onClick = onCancel,
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
+            ) {
                 Text("Hủy")
             }
             Spacer(Modifier.width(8.dp))
-            Button(onClick = {
-                if (movieName.isNotBlank() && price.toDoubleOrNull() != null && year.toIntOrNull() != null) {
-                    onSave(
-                        MovieEntity(
-                            movie_name = movieName,
-                            description = description,
-                            price = price.toDouble(),
-                            banner = banner,
-                            video = video,
-                            year = year.toInt()
-                        ),
-                        selectedGenres.toList()
-                    )
+            Button(
+                onClick = {
+                    if (movieName.isNotBlank() && price.toDoubleOrNull() != null && year.toIntOrNull() != null) {
+                        onSave(
+                            MovieEntity(
+                                movie_name = movieName,
+                                description = description,
+                                price = price.toDouble(),
+                                banner = banner,
+                                video = video,
+                                year = year.toInt()
+                            ),
+                            selectedGenres.toList()
+                        )
+                    }
                 }
-            }) {
+            ) {
                 Text("Lưu")
             }
         }
     }
 }
+
 
 
 

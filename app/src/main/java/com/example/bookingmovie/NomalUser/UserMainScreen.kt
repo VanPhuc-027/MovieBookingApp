@@ -12,10 +12,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -23,12 +27,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.bookingmovie.MovieUI.Movie.MovieUIModel
+import com.example.bookingmovie.ViewModels.BookingViewModel
+import com.example.bookingmovie.data.AppDatabase
+import com.example.bookingmovie.data.Booking.BookingDao
 import com.example.bookingmovie.data.Booking.BookingEntity
 import com.example.bookingmovie.data.Item.ItemDao
 import com.example.bookingmovie.data.Room.RoomDao
 import com.example.bookingmovie.data.Room.RoomEntity
 import com.example.bookingmovie.data.Seat.SeatDao
 import com.example.bookingmovie.data.Seat.SeatEntity
+import com.example.bookingmovie.data.Showtime.ShowtimeDao
 import com.example.bookingmovie.data.User.UserEntity
 
 sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: String) {
@@ -42,6 +50,19 @@ val bottomNavItems = listOf(
     BottomNavItem.History,
     BottomNavItem.Settings,
 )
+
+class BookingViewModelFactory(
+    private val bookingDao: BookingDao,
+    private val seatDao: SeatDao
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(BookingViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return BookingViewModel(bookingDao, seatDao) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
 
 
 @Composable
@@ -95,7 +116,7 @@ fun BottomNavigationBar(navController: NavController) {
 }
 
 @Composable
-fun UserMainScreen(appNavController: NavHostController,itemDao: ItemDao,seatDao: SeatDao,roomDao: RoomDao,currentUser: UserEntity) {
+fun UserMainScreen(appNavController: NavHostController,itemDao: ItemDao,seatDao: SeatDao,roomDao: RoomDao,currentUser: UserEntity,showtimeDao: ShowtimeDao) {
     val innerNavController = rememberNavController()
     Scaffold(
         bottomBar = { BottomNavigationBar(innerNavController) }
@@ -143,14 +164,15 @@ fun UserMainScreen(appNavController: NavHostController,itemDao: ItemDao,seatDao:
                     val allRooms by roomDao.getAllRooms().collectAsState(initial = emptyList())
                     val selectedRoomId = allRooms.firstOrNull()?.room_id ?: 0
                     val seats by seatDao.getSeatsByRoomId(selectedRoomId).collectAsState(initial = emptyList())
-
-
+                    val showtimes by showtimeDao.getShowtimesByMovieId(movie.movie_id).collectAsState(initial = emptyList())
+                    val bookingDao = AppDatabase.getDatabase(LocalContext.current).bookingDao()
+                    val bookingViewModel: BookingViewModel = viewModel(
+                        factory = BookingViewModelFactory(
+                            bookingDao = bookingDao,
+                            seatDao = seatDao
+                        )
+                    )
                     val foodItems by itemDao.getAllItems().collectAsState(initial = emptyList())
-
-                    val insertBooking = { booking: BookingEntity ->
-                        println("Booking đã được lưu: $booking")
-                    }
-
                     BookingScreen(
                         movie = it,
                         currentUser = currentUser,
@@ -158,9 +180,9 @@ fun UserMainScreen(appNavController: NavHostController,itemDao: ItemDao,seatDao:
                         onBookingSuccess = { innerNavController.popBackStack() },
                         roomList = allRooms,
                         seatListProvider = { seats },
-                        insertBooking = insertBooking,
                         foodItems = foodItems,
-                        seatDao = seatDao
+                        showtimes = showtimes,
+                        viewModel = bookingViewModel
                     )
                 }
             }

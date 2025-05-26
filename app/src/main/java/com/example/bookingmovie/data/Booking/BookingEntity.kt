@@ -11,11 +11,11 @@ data class BookingEntity(
     val showDate: String,
     val showTime: String,
     val numberOfTickets: Int,
-    val selectedSeats: String, // "A1,B2,C3"
+    val selectedSeats: String,
     val selectedFood: String,
     val paymentMethod: String,
     val totalPrice: Double,
     val bookingTime: String,
-    val status: String, // "Còn hạn", "Hết hạn"
+    val status: String,
     //val qrCodeData: String = ""
 )

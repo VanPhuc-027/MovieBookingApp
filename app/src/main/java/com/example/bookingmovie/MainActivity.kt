@@ -34,6 +34,7 @@ fun MovieAppBooking(){
     val itemDao = db.itemDao()
     val roomDao = db.roomDao()
     val seatDao = db.seatDao()
+    val showtimeDao = db.showtimeDao()
     val loginViewModel: LoginViewModel =   viewModel()
 
     NavHost(
@@ -56,10 +57,10 @@ fun MovieAppBooking(){
                         itemDao = itemDao,
                         seatDao = seatDao,
                         roomDao = roomDao,
-                        currentUser = user
+                        currentUser = user,
+                        showtimeDao = showtimeDao
                     )
                 } else {
-                    // Optionally show a loading indicator here
                 }
             } ?: navController.navigate("login")
         }
