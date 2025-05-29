@@ -50,7 +50,6 @@ val bottomNavItems = listOf(
     BottomNavItem.History,
     BottomNavItem.Settings,
 )
-
 class BookingViewModelFactory(
     private val bookingDao: BookingDao,
     private val seatDao: SeatDao
@@ -63,7 +62,6 @@ class BookingViewModelFactory(
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
-
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
@@ -118,6 +116,14 @@ fun BottomNavigationBar(navController: NavController) {
 @Composable
 fun UserMainScreen(appNavController: NavHostController,itemDao: ItemDao,seatDao: SeatDao,roomDao: RoomDao,currentUser: UserEntity,showtimeDao: ShowtimeDao) {
     val innerNavController = rememberNavController()
+    val context = LocalContext.current
+    val bookingDao = AppDatabase.getDatabase(context).bookingDao()
+    val bookingViewModel: BookingViewModel = viewModel(
+        factory = BookingViewModelFactory(
+            bookingDao = bookingDao,
+            seatDao = seatDao
+        )
+    )
     Scaffold(
         bottomBar = { BottomNavigationBar(innerNavController) }
     ) { padding ->
@@ -130,7 +136,10 @@ fun UserMainScreen(appNavController: NavHostController,itemDao: ItemDao,seatDao:
                 UserMovieList(appNavController = innerNavController)
             }
             composable(BottomNavItem.History.route) {
-                BookingHistoryScreen()
+                BookingHistoryScreen(
+                    bookingViewModel = bookingViewModel,
+                    currentUserId = currentUser.user_id
+                )
             }
             composable(BottomNavItem.Settings.route) {
                 UserAccount(appNavController = appNavController)
@@ -163,15 +172,10 @@ fun UserMainScreen(appNavController: NavHostController,itemDao: ItemDao,seatDao:
                 movie?.let {
                     val allRooms by roomDao.getAllRooms().collectAsState(initial = emptyList())
                     val selectedRoomId = allRooms.firstOrNull()?.room_id ?: 0
-                    val seats by seatDao.getSeatsByRoomId(selectedRoomId).collectAsState(initial = emptyList())
+                    val allSeats by seatDao.getAllSeats().collectAsState(initial = emptyList())
                     val showtimes by showtimeDao.getShowtimesByMovieId(movie.movie_id).collectAsState(initial = emptyList())
                     val bookingDao = AppDatabase.getDatabase(LocalContext.current).bookingDao()
-                    val bookingViewModel: BookingViewModel = viewModel(
-                        factory = BookingViewModelFactory(
-                            bookingDao = bookingDao,
-                            seatDao = seatDao
-                        )
-                    )
+
                     val foodItems by itemDao.getAllItems().collectAsState(initial = emptyList())
                     BookingScreen(
                         movie = it,
@@ -179,7 +183,9 @@ fun UserMainScreen(appNavController: NavHostController,itemDao: ItemDao,seatDao:
                         onBack = { innerNavController.popBackStack() },
                         onBookingSuccess = { innerNavController.popBackStack() },
                         roomList = allRooms,
-                        seatListProvider = { seats },
+                        seatListProvider = { roomId, showtimeId ->
+                            allSeats.filter { it.roomId == roomId && it.showtimeId == showtimeId }
+                        },
                         foodItems = foodItems,
                         showtimes = showtimes,
                         viewModel = bookingViewModel

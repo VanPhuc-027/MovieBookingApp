@@ -1,5 +1,8 @@
 package com.example.bookingmovie.NomalUser
 
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -37,7 +41,14 @@ import com.example.bookingmovie.data.Room.RoomEntity
 import com.example.bookingmovie.data.Seat.SeatEntity
 import com.example.bookingmovie.data.Showtime.ShowtimeEntity
 import com.example.bookingmovie.data.User.UserEntity
-
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.viewinterop.AndroidView
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import com.example.bookingmovie.generateQrCode
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.foundation.Image
 @Composable
 fun BookingScreen(
     movie: MovieUIModel,
@@ -45,7 +56,7 @@ fun BookingScreen(
     onBack: () -> Unit,
     onBookingSuccess: () -> Unit,
     roomList: List<RoomEntity>,
-    seatListProvider: (roomId: Int) -> List<SeatEntity>,
+    seatListProvider: (roomId: Int,showtimeId: Int) -> List<SeatEntity>,
     foodItems: List<ItemEntity>,
     showtimes: List<ShowtimeEntity>,
     viewModel: BookingViewModel
@@ -56,11 +67,33 @@ fun BookingScreen(
     var paymentMethod by remember { mutableStateOf("Tiền mặt") }
     var showConfirmDialog by remember { mutableStateOf(false) }
     var selectedShowtimeId by remember { mutableStateOf(showtimes.firstOrNull()?.showtimeId ?: 0) }
-    val seats = seatListProvider(selectedShowtimeId)
+
+    val seats = seatListProvider(selectedRoomId,selectedShowtimeId)
+    val filteredShowtimes = showtimes.filter { it.roomId == selectedRoomId }
+    var showPaypalWebView by remember { mutableStateOf(false) }
+    val totalPrice = movie.price * selectedSeats.size + selectedFood.entries.sumOf { (name, qty) ->
+        val itemPrice = foodItems.find { it.name == name }?.price ?: 0
+        qty * itemPrice
+    }
+
+    val qrCodeContent = buildString {
+        append("Phim: ${movie.movie_name}\n")
+        append("Thời gian: ${movie.releaseDate} - ${filteredShowtimes.find { it.showtimeId == selectedShowtimeId }?.showTime ?: "N/A"}\n")
+        append("Phòng: ${roomList.find { it.room_id == selectedRoomId }?.Room_Number ?: "N/A"}\n")
+        append("Ghế: ${selectedSeats.joinToString()}\n")
+        append("Đồ ăn: ${
+            if (selectedFood.isEmpty()) "Không có"
+            else selectedFood.entries.joinToString { "${it.key} x${it.value}" }
+        }\n")
+        append("Thanh toán: $paymentMethod\n")
+        append("Tổng tiền: ${totalPrice} VND")
+    }
+
 
     Spacer(Modifier.height(8.dp))
 
     Column(modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState())) {
+
         Text("Chọn phòng chiếu", fontWeight = FontWeight.Bold)
         DropdownMenuBox(items = roomList, selectedId = selectedRoomId) { newRoomId ->
             if (newRoomId != selectedRoomId) {
@@ -71,7 +104,7 @@ fun BookingScreen(
 
         Text("Chọn suất chiếu", fontWeight = FontWeight.Bold)
         DropdownMenuBoxShowtime(
-            items = showtimes,
+            items = filteredShowtimes,
             selectedId = selectedShowtimeId
         ) { newShowtimeId ->
             if (newShowtimeId != selectedShowtimeId) {
@@ -102,7 +135,6 @@ fun BookingScreen(
         PaymentMethodSelector(paymentMethod) {
             paymentMethod = it
         }
-
         Spacer(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             Button(onClick = onBack) {
@@ -121,6 +153,7 @@ fun BookingScreen(
                     text = {
                         Column {
                             Text("Tên phim: ${movie.movie_name}")
+                            Text("Ngày khởi chiếu: ${movie.releaseDate}")
                             Text("Số vé: ${selectedSeats.size}")
                             Text("Ghế đã chọn: ${selectedSeats.joinToString()}")
                             val selectedShowtime = showtimes.find { it.showtimeId == selectedShowtimeId }
@@ -145,32 +178,44 @@ fun BookingScreen(
                                 qty * itemPrice
                             }
                             Text("Tổng tiền: ${totalPrice}đ")
+                            val qrCodeBitmap = generateQrCode(qrCodeContent)
+                            Image(
+                                bitmap = qrCodeBitmap.asImageBitmap(),
+                                contentDescription = "QR Code",
+                                modifier = Modifier
+                                    .padding(top = 16.dp)
+                                    .size(150.dp)
+                            )
                         }
                     },
                     confirmButton = {
-                        Button(onClick = {
-                            showConfirmDialog = false
+                        val currentBookingTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
+                            Date()
+                        )
+                        Button(onClick = {if (paymentMethod == "Ví điện tử") {
+                            showPaypalWebView = true
+                        }else {
 
-                            val selectedSeatEntities = seats.filter { selectedSeats.contains(it.seatNumber) }
                             val selectedShowtime = showtimes.find { it.showtimeId == selectedShowtimeId }
-                            val totalPrice = movie.price * selectedSeats.size + selectedFood.entries.sumOf { (name, qty) ->
-                                val itemPrice = foodItems.find { it.name == name }?.price ?: 0
-                                qty * itemPrice
-                            }
                             viewModel.confirmBooking(
                                 userId = currentUser.user_id,
-                                showDate = "2025-06-01",
+                                showDate = movie.releaseDate,
                                 showTime = selectedShowtime?.showTime ?: "18:00",
                                 selectedSeats = selectedSeats.toList(),
                                 selectedFood = selectedFood.toMap(),
                                 paymentMethod = paymentMethod,
                                 totalPrice = totalPrice.toDouble(),
-                                bookingTime = "643",
+                                bookingTime = currentBookingTime,
                                 status = "Còn hạn",
                                 roomId = selectedRoomId,
+                                showtimeId = selectedShowtimeId,
+                                qrCodeContent = qrCodeContent,
                                 onSuccess = onBookingSuccess
                             )
-                        }) {
+                        }
+                            showConfirmDialog = false
+                        })
+                        {
                             Text("Đặt vé")
                         }
                     },
@@ -179,12 +224,45 @@ fun BookingScreen(
                             Text("Hủy")
                         }
                     }
+
                 )
             }
         }
     }
-}
+    if (showPaypalWebView) {
+        PaypalWebViewScreen(
+            paypalUrl = "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_xclick&business=sb-fplsw42745067@business.example.com&item_name=Ve+Xem+Phim&amount=3.50&currency_code=USD&return=https://myapp.com/payment/success&cancel_return=https://myapp.com/payment/cancel",
+            onSuccess = {
+                showPaypalWebView = false
+                val selectedShowtime = showtimes.find { it.showtimeId == selectedShowtimeId }
+                val totalPrice = movie.price * selectedSeats.size + selectedFood.entries.sumOf { (name, qty) ->
+                    val itemPrice = foodItems.find { it.name == name }?.price ?: 0
+                    qty * itemPrice
+                }
+                viewModel.confirmBooking(
+                    userId = currentUser.user_id,
+                    showDate = "2025-06-01",
+                    showTime = selectedShowtime?.showTime ?: "18:00",
+                    selectedSeats = selectedSeats.toList(),
+                    selectedFood = selectedFood.toMap(),
+                    paymentMethod = paymentMethod,
+                    totalPrice = totalPrice.toDouble(),
+                    bookingTime = "643",
+                    status = "Còn hạn",
+                    roomId = selectedRoomId,
+                    showtimeId = selectedShowtimeId,
+                    onSuccess = onBookingSuccess,
+                    qrCodeContent = qrCodeContent
+                )
+            },
+            onCancel = {
+                showPaypalWebView = false
+            }
+        )
+    }
 
+
+}
 @Composable
 fun DropdownMenuBoxShowtime(
     items: List<ShowtimeEntity>,
@@ -219,12 +297,10 @@ fun PaymentMethodSelector(
 ) {
     val paymentMethods = listOf("Tiền mặt", "Chuyển khoản", "Ví điện tử")
     var expanded by remember { mutableStateOf(false) }
-
     Box {
         OutlinedButton(onClick = { expanded = true }) {
             Text(selectedMethod)
         }
-
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             paymentMethods.forEach { method ->
                 DropdownMenuItem(
@@ -356,5 +432,61 @@ fun DropdownMenuBox(
         }
     }
 }
+
+@Composable
+fun PaypalWebViewScreen(
+    paypalUrl: String,
+    onSuccess: () -> Unit,
+    onCancel: () -> Unit
+) {
+    val context = LocalContext.current
+    var showConfirmDialog by remember { mutableStateOf(false) }
+    var paymentSuccess by remember { mutableStateOf(false) }
+    AndroidView(factory = {
+        WebView(context).apply {
+            settings.javaScriptEnabled = true
+            webViewClient = object : WebViewClient() {
+                override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                    val url = request?.url.toString()
+                    return when {
+                        url.contains("payment/success") -> {
+                            paymentSuccess = true
+                            showConfirmDialog = true
+                            true
+                        }
+                        url.contains("payment/cancel") -> {
+                            onCancel()
+                            true
+                        }
+                        else -> false
+                    }
+                }
+            }
+
+            loadUrl(paypalUrl)
+        }
+    }, modifier = Modifier.fillMaxWidth().height(500.dp))
+    if (showConfirmDialog && paymentSuccess) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showConfirmDialog = false },
+            title = { Text("Xác nhận thanh toán") },
+            text = { Text("Bạn đã thanh toán thành công qua PayPal.") },
+            confirmButton = {
+                Button(onClick = {
+                    showConfirmDialog = false
+                    if (paymentSuccess) {
+                        onSuccess()
+                    }
+                }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
+}
+
+
+
+
 
 

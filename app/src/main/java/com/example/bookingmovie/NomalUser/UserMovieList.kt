@@ -24,48 +24,73 @@ import com.example.bookingmovie.data.Movie.MovieWithGenre
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import com.example.bookingmovie.MovieUI.Movie.toUIModel
+import kotlinx.coroutines.delay
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
+import com.google.accompanist.pager.*
+import kotlinx.coroutines.yield
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserMovieList(
     appNavController: NavHostController,
     movieViewModel: MovieViewModel = viewModel(),
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
-    ) {
-        // Giao diện thanh tìm kiếm "giả"
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { appNavController.navigate("search") },
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-            ) {
-                Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Tìm kiếm phim...",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "Trang chủ",
+                        color =  Color.White
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFF0D1B2A)
+                ),
+                modifier = Modifier.height(52.dp)
+            )
         }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(8.dp)
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { appNavController.navigate("search") },
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                ) {
+                    Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Tìm kiếm phim...",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-        UserMovieListContent(appNavController,movieViewModel)
+            UserMovieListContent(appNavController, movieViewModel)
+        }
     }
 }
-
 
 @Composable
 fun SearchScreen(
@@ -91,7 +116,6 @@ fun SearchScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .statusBarsPadding()
             .padding(horizontal = 16.dp)
     ) {
         OutlinedTextField(
@@ -126,7 +150,8 @@ fun SearchScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Danh sách phim
+        Spacer(modifier = Modifier.height(16.dp))
+
         if (filteredMovies.isEmpty()) {
             Box(
                 modifier = Modifier
@@ -159,10 +184,9 @@ fun UserMovieListContent(
 ) {
     val movieList by movieViewModel.allMoviesWithGenre.collectAsState()
 
-    var searchText by remember { mutableStateOf(TextFieldValue("")) }
-    var selectedGenre by remember { mutableStateOf("Tất cả") }
 
-    val genres = listOf("Tất cả") + movieList.flatMap { it.genre.map { g -> g.genre_name } }.distinct()
+    var searchText by remember { mutableStateOf(TextFieldValue("")) }
+
 
     val filteredMovies = movieList.filter { movieWithGenre ->
         val matchName = movieWithGenre.movie.movie_name.contains(searchText.text, ignoreCase = true)
@@ -171,9 +195,27 @@ fun UserMovieListContent(
 
     Column(
         modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        Text(
+            text = "Phim nổi bật",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+        MovieBannerSlider(movies = movieList, appNavController = appNavController)
+    }
+
+    Column(
+        modifier = Modifier
             .fillMaxSize()
             .padding(8.dp)
     ) {
+        Text(
+            text = "Tất cả phim",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
 
         if (filteredMovies.isEmpty()) {
             Box(
@@ -205,33 +247,124 @@ fun MovieGridItem(
 ) {
     val movie = movieWithGenre.movie
     val uiModel = movieWithGenre.toUIModel()
-    Column(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(4.dp)
-        .clickable {
-            appNavController.currentBackStackEntry
-                ?.savedStateHandle
-                ?.set("movie", uiModel)
-        appNavController.navigate("movie_detail")
-    },
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(
-            painter = rememberAsyncImagePainter(movie.banner),
-            contentDescription = movie.movie_name,
-            modifier = Modifier
-                .height(180.dp)
-                .fillMaxWidth(),
-            contentScale = ContentScale.Crop
+            .clickable {
+                appNavController.currentBackStackEntry
+                    ?.savedStateHandle
+                    ?.set("movie", uiModel)
+                appNavController.navigate("movie_detail")
+            },
+        shape = MaterialTheme.shapes.medium,
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
         )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = movie.movie_name,
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = 2
+    ) {
+        Column(
+            modifier = Modifier.padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = rememberAsyncImagePainter(movie.banner),
+                contentDescription = movie.movie_name,
+                modifier = Modifier
+                    .height(180.dp)
+                    .fillMaxWidth()
+                    .clip(MaterialTheme.shapes.medium),
+                contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = movie.movie_name,
+                style = MaterialTheme.typography.titleSmall,
+                maxLines = 2,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
+
+@Composable
+fun MovieBannerSlider(
+    movies: List<MovieWithGenre>,
+    appNavController: NavHostController,
+    modifier: Modifier = Modifier
+) {
+    if (movies.isEmpty()) return
+
+    val pagerState = rememberPagerState()
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            yield()
+            delay(3000L)
+            val nextPage = (pagerState.currentPage + 1) % movies.size
+            pagerState.animateScrollToPage(nextPage)
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(100.dp)
+    ) {
+        HorizontalPager(
+            count = movies.size,
+            state = pagerState,
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            modifier = Modifier.fillMaxSize()
+        ) { page ->
+            val movie = movies[page].movie
+            val uiModel = movies[page].toUIModel()
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        appNavController.currentBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("movie", uiModel)
+                        appNavController.navigate("movie_detail")
+                    }
+                    .clip(RoundedCornerShape(12.dp))
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(movie.banner),
+                    contentDescription = movie.movie_name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.3f))
+                )
+
+                Text(
+                    text = movie.movie_name,
+                    style = MaterialTheme.typography.titleLarge.copy(color = Color.White),
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(12.dp)
+                )
+            }
+        }
+
+        HorizontalPagerIndicator(
+            pagerState = pagerState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(8.dp),
+            activeColor = Color.White
         )
     }
 }
+
 
 

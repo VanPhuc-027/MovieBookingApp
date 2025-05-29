@@ -12,6 +12,7 @@ fun MovieWithGenre.toUIModel(): MovieUIModel {
         banner = movie.banner,
         video = movie.video,
         year = movie.year,
-        genres = genre.map { it.toUIModel() }
+        genres = genre.map { it.toUIModel() },
+        releaseDate = movie.releaseDate
     )
 }

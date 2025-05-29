@@ -34,13 +34,12 @@ fun UserAccount(appNavController: NavHostController) {
                     Text(
                         text = "Tài khoản",
                         color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Purple40
-                )
+                   containerColor = Color(0xFF0D1B2A)
+                ),
+                modifier = Modifier.height(52.dp)
             )
         }
     ) { innerPadding ->
@@ -52,8 +51,8 @@ fun UserAccount(appNavController: NavHostController) {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
-            MenuItem(icon = Icons.Default.Favorite, text = "Yêu thích") { /* TODO */ }
-            MenuItem(icon = Icons.Default.List, text = "Danh sách") { /* TODO */ }
+            //MenuItem(icon = Icons.Default.Favorite, text = "Yêu thích") { /* TODO */ }
+            //MenuItem(icon = Icons.Default.List, text = "Danh sách") { /* TODO */ }
             MenuItem(icon = Icons.Default.Person, text = "Thông tin cá nhân") { /* TODO */ }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -71,7 +70,6 @@ fun UserAccount(appNavController: NavHostController) {
             }
         }
 
-        // Dialog xác nhận đăng xuất
         if (showLogoutDialog) {
             AlertDialog(
                 onDismissRequest = { showLogoutDialog = false },

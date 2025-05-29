@@ -10,5 +10,6 @@ data class SeatEntity (
     val seatNumber: String,
     val isBooked: Boolean,
     val row: String,
-    val roomId: Int
+    val roomId: Int,
+    val showtimeId: Int
 )

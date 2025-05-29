@@ -14,7 +14,8 @@ fun MovieEntity.toUIModel(): MovieUIModel {
         banner = this.banner,
         video = this.video,
         year = this.year,
-        genres = emptyList()
+        genres = emptyList(),
+        releaseDate = this.releaseDate
     )
 }
 fun GenreEntity.toUIModel(): GenreUIModel {

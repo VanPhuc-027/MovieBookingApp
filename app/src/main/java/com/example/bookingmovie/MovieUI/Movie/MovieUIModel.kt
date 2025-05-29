@@ -12,6 +12,7 @@ data class MovieUIModel(
     val banner: String?,
     val video: String?,
     val year: Int,
-    val genres: List<GenreUIModel>
+    val genres: List<GenreUIModel>,
+    val releaseDate: String,
 ) : Parcelable
 

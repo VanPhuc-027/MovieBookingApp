@@ -106,30 +106,30 @@ abstract class AppDatabase : RoomDatabase() {
                     roomDao.insertRooms(rooms)
 
                     val insertedRooms = roomDao.getAllRoomsOnce()
+                    val allShowtimes = showtimeDao.getAllShowtimesOnce()
+                    val showtimeIds = allShowtimes.map { it.showtimeId }
 
-                    val allSeats = generateDefaultSeatsForRooms(insertedRooms)
+                    val allSeats = generateDefaultSeatsForRooms(insertedRooms,showtimeIds)
                     seatDao.insertSeats(allSeats)
-
-                    //val showtimes = generateDefaultShowtimes(insertedRooms)
-                    //showtimeDao.insertShowtimes(showtimes)
                 }
             }
         }
-
-
-        private fun generateDefaultSeatsForRooms(rooms: List<RoomEntity>): List<SeatEntity> {
+        private fun generateDefaultSeatsForRooms(rooms: List<RoomEntity>, showtimeIds: List<Int>): List<SeatEntity> {
             val seats = mutableListOf<SeatEntity>()
             for (room in rooms) {
-                for (row in 'A'..'D') {
-                    for (num in 1..6) {
-                        seats.add(
-                            SeatEntity(
-                                seatNumber = "$row$num",
-                                isBooked = false,
-                                row = row.toString(),
-                                roomId = room.room_id
+                for (showtimeId in showtimeIds) {
+                    for (row in 'A'..'D') {
+                        for (num in 1..6) {
+                            seats.add(
+                                SeatEntity(
+                                    seatNumber = "$row$num",
+                                    isBooked = false,
+                                    row = row.toString(),
+                                    roomId = room.room_id,
+                                    showtimeId = showtimeId
+                                )
                             )
-                        )
+                        }
                     }
                 }
             }
@@ -144,26 +144,5 @@ abstract class AppDatabase : RoomDatabase() {
                 RoomEntity(Room_Number = "Phòng 4")
             )
         }
-        /*private fun generateDefaultShowtimes(rooms: List<RoomEntity>): List<ShowtimeEntity> {
-            val showtimes = mutableListOf<ShowtimeEntity>()
-            val sampleMovieId = 1L
-
-            val timeRanges = listOf("09h-11h", "13h-15h", "17h-19h", "20h-22h")
-
-            for (room in rooms) {
-                for (time in timeRanges) {
-                    showtimes.add(
-                        ShowtimeEntity(
-                            movieId = sampleMovieId,
-                            roomId = room.room_id,
-                            showTime = time
-                        )
-                    )
-                }
-            }
-            return showtimes
-        }*/
-
-
     }
 }

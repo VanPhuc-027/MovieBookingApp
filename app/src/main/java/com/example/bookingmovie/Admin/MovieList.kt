@@ -216,8 +216,9 @@ fun AddMovieScreen(
     var video by remember { mutableStateOf("") }
     var year by remember { mutableStateOf("") }
     val selectedGenres = remember { mutableStateListOf<Int>() }
+    var releaseDate by remember { mutableStateOf("") }
 
-    // Thêm state scroll
+
     val scrollState = rememberScrollState()
 
     Column(
@@ -270,6 +271,13 @@ fun AddMovieScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
+        OutlinedTextField(
+            value = releaseDate,
+            onValueChange = { releaseDate = it },
+            label = { Text("Ngày khởi chiếu (yyyy-MM-dd)") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
         Spacer(Modifier.height(12.dp))
         Text("Chọn thể loại:", fontWeight = FontWeight.Bold)
 
@@ -313,7 +321,8 @@ fun AddMovieScreen(
                                 price = price.toDouble(),
                                 banner = banner,
                                 video = video,
-                                year = year.toInt()
+                                year = year.toInt(),
+                                releaseDate = releaseDate
                             ),
                             selectedGenres.toList()
                         )
@@ -336,11 +345,11 @@ fun AddMovieScreen(
 fun MovieListPreview() {
     val mockMovies = listOf(
         MovieWithGenre(
-            movie = MovieEntity(1, "Cuộc chiến vô cực",  "2023",100.000,"https://media.themoviedb.org/t/p/w600_and_h900_bestv2/cAoktVUBhGyULRoxV6mZ2LB3x7I.jpg","",2003),
+            movie = MovieEntity(1, "Cuộc chiến vô cực",  "2023",100.000,"https://media.themoviedb.org/t/p/w600_and_h900_bestv2/cAoktVUBhGyULRoxV6mZ2LB3x7I.jpg","",2003, "2023-10-01"),
             genre = listOf(GenreEntity(1, "Hành động","hay"))
         ),
         MovieWithGenre(
-            movie = MovieEntity(2, "Tình yêu mùa hạ",  "dien  anh tuyet doi",100.000,"","",2004),
+            movie = MovieEntity(2, "Tình yêu mùa hạ",  "dien  anh tuyet doi",100.000,"","",2004, "2023-10-01"),
             genre = listOf(GenreEntity(2, "Tình cảm","cũng cũng"))
         )
     )

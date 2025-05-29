@@ -10,6 +10,7 @@ data class MovieEntity(
     val price: Double,
     val banner: String?,
     val video: String?,
-    val year: Int
+    val year: Int,
+    val releaseDate : String,
 )
 

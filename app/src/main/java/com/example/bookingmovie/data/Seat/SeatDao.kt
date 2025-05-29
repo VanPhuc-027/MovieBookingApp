@@ -15,8 +15,15 @@ interface SeatDao {
     @Query("SELECT * FROM Seat WHERE roomId= :roomId")
     fun getSeatsByRoomId(roomId: Int): Flow<List<SeatEntity>>
 
-    @Query("UPDATE Seat SET isBooked = :isBooked WHERE seatNumber = :seatNumber AND roomId = :roomId")
-    suspend fun updateSeatStatus(seatNumber: String, roomId: Int, isBooked: Boolean)
+    @Query("SELECT * FROM Seat WHERE roomId = :roomId AND showtimeId = :showtimeId")
+    fun getSeatsByRoomAndShowtime(roomId: Int, showtimeId: Int): Flow<List<SeatEntity>>
+
+
+    @Query("UPDATE Seat SET isBooked = :isBooked WHERE seatNumber = :seatNumber AND roomId = :roomId AND showtimeId = :showtimeId")
+    suspend fun updateSeatStatus(seatNumber: String, roomId: Int, isBooked: Boolean, showtimeId: Int)
+
+    @Query("SELECT * FROM Seat")
+    fun getAllSeats(): Flow<List<SeatEntity>>
 
     @Update
     suspend fun updateSeat(seat: SeatEntity)

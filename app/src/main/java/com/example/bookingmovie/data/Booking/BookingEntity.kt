@@ -17,5 +17,7 @@ data class BookingEntity(
     val totalPrice: Double,
     val bookingTime: String,
     val status: String,
-    //val qrCodeData: String = ""
+    val roomId: Int,
+    val showtimeId: Int,
+    val qrCodeContent: String
 )

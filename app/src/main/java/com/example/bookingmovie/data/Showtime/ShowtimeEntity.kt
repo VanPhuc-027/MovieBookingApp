@@ -9,5 +9,6 @@ data class ShowtimeEntity(
     val showtimeId: Int = 0,
     val roomId: Int,
     val movieId: Long,
-    val showTime: String
+    val showTime: String,
+    val showDate :String
 )

@@ -15,8 +15,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -24,6 +28,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.bookingmovie.Account
+import com.example.bookingmovie.ViewModels.BookingViewModel
+import com.example.bookingmovie.data.AppDatabase
+import com.example.bookingmovie.data.Booking.BookingDao
+import com.example.bookingmovie.data.Seat.SeatDao
 
 
 sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: String) {
@@ -41,7 +49,18 @@ val bottomNavItems = listOf(
     BottomNavItem.History,
     BottomNavItem.Settings
 )
-
+class BookingViewModelFactory(
+    private val bookingDao: BookingDao,
+    private val seatDao: SeatDao
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(BookingViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return BookingViewModel(bookingDao, seatDao) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
 @Composable
 fun BottomNavigationBar(navController: NavController) {
     val navBackStackEntry = navController.currentBackStackEntryAsState()
@@ -76,7 +95,15 @@ fun BottomNavigationBar(navController: NavController) {
 @Composable
 fun MainScreen(appNavController: NavHostController) {
     val navController = rememberNavController()
-
+    val context = LocalContext.current
+    val bookingDao = AppDatabase.getDatabase(context).bookingDao()
+    val seatDao = AppDatabase.getDatabase(context).seatDao()
+    val bookingViewModel: BookingViewModel = viewModel(
+        factory = BookingViewModelFactory(
+            bookingDao = bookingDao,
+            seatDao = seatDao
+        )
+    )
     Scaffold(
         bottomBar = { BottomNavigationBar(navController) },
         modifier = Modifier.padding(bottom = 4.dp)
@@ -93,7 +120,7 @@ fun MainScreen(appNavController: NavHostController) {
                 MovieCategory()
             }
             composable(BottomNavItem.History.route) {
-                BookingHistory()
+                BookingHistory(bookingViewModel = bookingViewModel)
             }
             composable(BottomNavItem.Settings.route) {
                 Account(appNavController)

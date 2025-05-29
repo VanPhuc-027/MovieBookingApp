@@ -12,6 +12,9 @@ interface ShowtimeDao {
     fun getShowtimesByMovieId( movieId: Long): Flow<List<ShowtimeEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertShowtimes(showtimes: List<ShowtimeEntity>)
+    suspend fun insertShowtime(showtime: ShowtimeEntity): Long
+
+    @Query("SELECT * FROM Showtime")
+    suspend fun getAllShowtimesOnce(): List<ShowtimeEntity>
 
 }

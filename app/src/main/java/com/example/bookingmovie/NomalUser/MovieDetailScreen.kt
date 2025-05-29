@@ -95,6 +95,7 @@ fun MovieDetailScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text("Thông tin chiếu phim", fontWeight = FontWeight.Bold)
+            Text("Ngày chiếu: ${movie.releaseDate}")
             Text("Phòng chiếu: Tất cả phòng")
             Text("Giờ chiếu: Mọi khung giờ")
 
@@ -157,7 +158,8 @@ fun Prreview5(){
         genres = listOf(
             GenreUIModel(1, "Hành động"),
             GenreUIModel(2, "Tâm lý")
-        )
+        ),
+        releaseDate = "2025-12-25"
     )
 
     MovieDetailScreen(

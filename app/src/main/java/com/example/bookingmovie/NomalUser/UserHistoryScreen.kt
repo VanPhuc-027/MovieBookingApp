@@ -5,7 +5,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 @Composable
@@ -17,7 +16,6 @@ fun UserHistoryScreen(onBack: () -> Unit) {
             Text("Quay lại")
         }
 
-        // Danh sách vé giả lập
         val tickets = listOf(
             "Vé 1 - Spider-Man - 10/10/2024",
             "Vé 2 - Titanic - 12/10/2024"
