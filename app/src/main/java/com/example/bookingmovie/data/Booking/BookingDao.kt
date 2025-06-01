@@ -21,6 +21,9 @@ interface BookingDao {
     @Query("SELECT * FROM booking WHERE userId = :userId")
     fun getBookingsByUserId(userId: Int): Flow<List<BookingEntity>>
 
+    @Query("UPDATE Booking SET status = 'Hết hạn' WHERE status = 'Còn hạn' AND (showDate < :currentDate OR (showDate = :currentDate AND showTime < :currentTime))")
+    suspend fun updateExpiredBookings(currentDate: String, currentTime: String)
+
     @Query("""
     SELECT 
         b.bookingId,
@@ -34,7 +37,8 @@ interface BookingDao {
         b.selectedSeats,
         b.selectedFood,
         b.paymentMethod,
-        r.room_number AS roomNumber
+        r.room_number AS roomNumber,
+        b.status
     FROM Booking b
     INNER JOIN Showtime s ON b.showtimeId = s.showtimeId
     INNER JOIN movies m ON s.movieId = m.movie_id
@@ -58,7 +62,8 @@ interface BookingDao {
         b.selectedSeats,
         b.selectedFood,
         b.paymentMethod,
-        r.room_number AS roomNumber
+        r.room_number AS roomNumber,
+        b.status
     FROM Booking b
     INNER JOIN Showtime s ON b.showtimeId = s.showtimeId
     INNER JOIN movies m ON s.movieId = m.movie_id
@@ -67,4 +72,13 @@ interface BookingDao {
     ORDER BY b.bookingTime DESC
 """)
     fun getAllBookingsWithMovieAndUser(): Flow<List<BookingWithMovieAndUser>>
-}
+
+    @Query("""
+        SELECT strftime('%m', bookingTime) AS month, 
+               SUM(totalPrice) AS revenue
+        FROM Booking
+        GROUP BY month
+        ORDER BY month
+    """)
+        fun getMonthlyRevenue(): List<MonthlyRevenue>
+    }

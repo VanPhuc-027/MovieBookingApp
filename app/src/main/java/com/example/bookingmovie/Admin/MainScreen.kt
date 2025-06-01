@@ -27,7 +27,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.bookingmovie.Account
 import com.example.bookingmovie.ViewModels.BookingViewModel
 import com.example.bookingmovie.data.AppDatabase
 import com.example.bookingmovie.data.Booking.BookingDao

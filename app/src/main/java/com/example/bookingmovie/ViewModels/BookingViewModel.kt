@@ -11,6 +11,9 @@ import com.example.bookingmovie.data.Seat.SeatDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class BookingViewModel(
     private val bookingDao: BookingDao,
@@ -76,6 +79,31 @@ class BookingViewModel(
                 )
             }
             onSuccess()
+        }
+    }
+    fun checkAndUpdateExpiredBookings() {
+        viewModelScope.launch {
+            val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+            val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+
+            bookingDao.updateExpiredBookings(currentDate, currentTime)
+
+            bookingDao.getAllBookingsWithUsers().collectLatest { bookings ->
+                bookings.forEach { bookingWithUser ->
+                    val booking = bookingWithUser.booking
+                    if (booking.status == "Hết hạn") {
+                        val seatNumbers = booking.selectedSeats.split(",")
+                        seatNumbers.forEach { seatNumber ->
+                            seatDao.updateSeatStatus(
+                                seatNumber = seatNumber,
+                                roomId = booking.roomId,
+                                showtimeId = booking.showtimeId,
+                                isBooked = false
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }

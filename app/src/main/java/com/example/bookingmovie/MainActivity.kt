@@ -9,8 +9,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.bookingmovie.Admin.BookingViewModelFactory
 import com.example.bookingmovie.Admin.MainScreen
 import com.example.bookingmovie.NomalUser.UserMainScreen
+import com.example.bookingmovie.Staff.StaffMainScreen
+import com.example.bookingmovie.Staff.StaffQrScanScreen
 import com.example.bookingmovie.ViewModels.LoginViewModel
 import com.example.bookingmovie.ui.screens.RegisterScreen
 import com.example.bookingmovie.data.AppDatabase
@@ -44,6 +47,7 @@ fun MovieAppBooking(){
         composable("login") { LoginScreen(navController,loginViewModel)  }
         composable("main"){ MainScreen(appNavController = navController) }
         composable("register"){ RegisterScreen(navController) }
+        composable("staff") { StaffMainScreen(navController) }
         composable("mainUser/{userId}") { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId")?.toIntOrNull()
             userId?.let { id ->
@@ -58,7 +62,13 @@ fun MovieAppBooking(){
                         seatDao = seatDao,
                         roomDao = roomDao,
                         currentUser = user,
-                        showtimeDao = showtimeDao
+                        showtimeDao = showtimeDao,
+                        bookingViewModel = viewModel(
+                            factory = BookingViewModelFactory(
+                                bookingDao = db.bookingDao(),
+                                seatDao = seatDao
+                            )
+                    )
                     )
                 } else {
                 }

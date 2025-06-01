@@ -1,27 +1,19 @@
 package com.example.bookingmovie.NomalUser
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.TopAppBar
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -32,7 +24,7 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTube
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieDetailScreen(
     movie: MovieUIModel,
@@ -41,86 +33,114 @@ fun MovieDetailScreen(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = { Text("Chi tiết phim") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Quay lại")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Quay lại", tint = Color.White)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFF0D1B2A),
+                    titleContentColor = Color.White
+                ),
+                modifier = Modifier.height(52.dp)
             )
         },
         bottomBar = {
-            Button(
-                onClick = onBook,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                shape = RoundedCornerShape(24.dp)
-            ) {
-                Text("ĐẶT VÉ")
+            Surface(shadowElevation = 4.dp) {
+                Button(
+                    onClick = onBook,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text("ĐẶT VÉ", style = MaterialTheme.typography.titleMedium)
+                }
             }
         }
     ) { padding ->
         Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(16.dp)
                 .verticalScroll(rememberScrollState())
+                .padding(16.dp)
         ) {
-            Image(
-                painter = rememberAsyncImagePainter(model = movie.banner),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp)
-            )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(8.dp)
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(model = movie.banner),
+                    contentDescription = "Banner phim",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                )
+            }
 
-            Text(movie.movie_name, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(movie.movie_name, style = MaterialTheme.typography.headlineSmall)
+            Spacer(modifier = Modifier.height(4.dp))
+
             Text(
                 text = "Thể loại: ${
                     if (movie.genres.isNotEmpty()) movie.genres.joinToString { it.genre_name }
                     else "Chưa cập nhật"
-                }"
-
+                }",
+                style = MaterialTheme.typography.bodyMedium
             )
-            Text("Năm sản xuất: ${movie.year}")
-            Text("Giá vé: ${movie.price}", color = Color.Red)
-
-            Spacer(modifier = Modifier.height(8.dp))
-
+            Text("Năm sản xuất: ${movie.year}", style = MaterialTheme.typography.bodyMedium)
+            Text("Giá vé: ${movie.price} VNĐ", color = Color.Red, fontWeight = FontWeight.SemiBold)
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text("Thông tin chiếu phim", fontWeight = FontWeight.Bold)
+            Divider()
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text("Thông tin chiếu phim", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(4.dp))
             Text("Ngày chiếu: ${movie.releaseDate}")
             Text("Phòng chiếu: Tất cả phòng")
             Text("Giờ chiếu: Mọi khung giờ")
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text("Mô tả phim", fontWeight = FontWeight.Bold)
+            Divider()
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text("Mô tả phim", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(4.dp))
             Text(movie.description)
 
             Spacer(modifier = Modifier.height(16.dp))
-            fun extractYoutubeVideoId(url: String): String {
-                val regex = Regex("(?:v=|youtu\\.be/)([\\w-]{11})")
-                return regex.find(url)?.groupValues?.get(1) ?: ""
-            }
 
-            Text("Video Trailer", fontWeight = FontWeight.Bold)
+            Divider()
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text("Video Trailer", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            val videoId = extractYoutubeVideoId(movie.video.toString())
             YouTubePlayerScreen(
-                videoId = extractYoutubeVideoId(movie.video.toString()),
+                videoId = videoId,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
             )
-
         }
     }
 }
+
+fun extractYoutubeVideoId(url: String): String {
+    val regex = Regex("(?:v=|youtu\\.be/)([\\w-]{11})")
+    return regex.find(url)?.groupValues?.get(1) ?: ""
+}
+
 @Composable
 fun YouTubePlayerScreen(videoId: String, modifier: Modifier = Modifier) {
     val lifecycleOwner = LocalLifecycleOwner.current

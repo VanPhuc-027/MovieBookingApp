@@ -1,5 +1,6 @@
 package com.example.bookingmovie.NomalUser
 
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
@@ -7,6 +8,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -68,8 +70,9 @@ fun BottomNavigationBar(navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     NavigationBar(
-        containerColor = Color.White,
-        tonalElevation = 0.dp
+        containerColor = Color(0xFF0D1B2A),
+        tonalElevation = 0.dp,
+        modifier = Modifier.height(70.dp)
     ) {
         bottomNavItems.forEach { item ->
             NavigationBarItem(
@@ -112,9 +115,11 @@ fun BottomNavigationBar(navController: NavController) {
         }
     }
 }
-
 @Composable
-fun UserMainScreen(appNavController: NavHostController,itemDao: ItemDao,seatDao: SeatDao,roomDao: RoomDao,currentUser: UserEntity,showtimeDao: ShowtimeDao) {
+fun UserMainScreen(bookingViewModel: BookingViewModel,appNavController: NavHostController,itemDao: ItemDao,seatDao: SeatDao,roomDao: RoomDao,currentUser: UserEntity,showtimeDao: ShowtimeDao) {
+    LaunchedEffect(Unit) {
+        bookingViewModel.checkAndUpdateExpiredBookings()
+    }
     val innerNavController = rememberNavController()
     val context = LocalContext.current
     val bookingDao = AppDatabase.getDatabase(context).bookingDao()

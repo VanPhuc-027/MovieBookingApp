@@ -37,7 +37,6 @@ import com.google.accompanist.flowlayout.FlowRow
 
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieListContent(
     movies: List<MovieWithGenre>,
@@ -51,7 +50,7 @@ fun MovieListContent(
     onAdd: () -> Unit = {}
 ) {
     val filteredMovies = movies.filter {
-        (selectedGenre == "Tất cả" || it.genre.firstOrNull()?.genre_name == selectedGenre) &&
+        (selectedGenre == "Tất cả" || it.genre.any { genre -> genre.genre_name == selectedGenre })&&
                 it.movie.movie_name.contains(searchText, ignoreCase = true)
     }
 

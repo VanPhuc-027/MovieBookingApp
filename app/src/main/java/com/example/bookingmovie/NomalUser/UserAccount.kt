@@ -4,8 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.List
+
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,19 +12,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.bookingmovie.ui.theme.Purple40
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 
 fun UserAccount(appNavController: NavHostController) {
     var showLogoutDialog by remember { mutableStateOf(false) }
+    val showChangePasswordDialog = remember { mutableStateOf(false) }
     Scaffold(
         containerColor = Color(0xFF0D0D0D),
         topBar = {
@@ -51,8 +50,7 @@ fun UserAccount(appNavController: NavHostController) {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
-            //MenuItem(icon = Icons.Default.Favorite, text = "Yêu thích") { /* TODO */ }
-            //MenuItem(icon = Icons.Default.List, text = "Danh sách") { /* TODO */ }
+
             MenuItem(icon = Icons.Default.Person, text = "Thông tin cá nhân") { /* TODO */ }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -62,6 +60,12 @@ fun UserAccount(appNavController: NavHostController) {
                 color = Color(0xFF292929),
                 thickness = 1.dp
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            MenuItem(icon = Icons.Default.ExitToApp, text = "Đổi mật khẩu") {
+                showChangePasswordDialog.value = true
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -89,6 +93,14 @@ fun UserAccount(appNavController: NavHostController) {
                     TextButton(onClick = { showLogoutDialog = false }) {
                         Text("Huỷ")
                     }
+                }
+            )
+        }
+        if (showChangePasswordDialog.value) {
+            ChangePasswordDialog(
+                onDismiss = { showChangePasswordDialog.value = false },
+                onConfirm = { oldPass, newPass ->
+                    showChangePasswordDialog.value = false
                 }
             )
         }
@@ -120,7 +132,50 @@ fun MenuItem(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String
     }
 }
 
+@Composable
+fun ChangePasswordDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (String, String) -> Unit
+) {
+    var oldPassword by remember { mutableStateOf("") }
+    var newPassword by remember { mutableStateOf("") }
 
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { androidx.compose.material3.Text("Đổi mật khẩu") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = oldPassword,
+                    onValueChange = { oldPassword = it },
+                    label = { androidx.compose.material3.Text("Mật khẩu cũ") },
+                    singleLine = true,
+                    visualTransformation = PasswordVisualTransformation()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = newPassword,
+                    onValueChange = { newPassword = it },
+                    label = { androidx.compose.material3.Text("Mật khẩu mới") },
+                    singleLine = true,
+                    visualTransformation = PasswordVisualTransformation()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                onConfirm(oldPassword, newPassword)
+            }) {
+                androidx.compose.material3.Text("Xác nhận")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                androidx.compose.material3.Text("Hủy")
+            }
+        }
+    )
+}
 
 @Preview(showBackground = true, backgroundColor = 0xFF000000)
 @Composable

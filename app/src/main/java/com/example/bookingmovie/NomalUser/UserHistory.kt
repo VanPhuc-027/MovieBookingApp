@@ -26,10 +26,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.bookingmovie.ViewModels.BookingViewModel
 import com.example.bookingmovie.data.Booking.BookingWithMovie
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.qrcode.QRCodeWriter
 import kotlinx.coroutines.flow.collectLatest
-
+import com.example.bookingmovie.generateQrCode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,21 +57,6 @@ fun BookingHistoryScreen(bookingViewModel: BookingViewModel, currentUserId: Int)
                 modifier = Modifier.height(52.dp)
             )
         },
-        bottomBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(
-                    onClick = { /* TODO: Xử lý lọc vé */ },
-                    shape = MaterialTheme.shapes.medium
-                ) {
-                    Text(text = "Bộ lọc")
-                }
-            }
-        }
     ) { innerPadding ->
         LazyColumn(
             contentPadding = PaddingValues(
@@ -98,7 +81,8 @@ fun BookingHistoryScreen(bookingViewModel: BookingViewModel, currentUserId: Int)
                     selectedSeats = booking.selectedSeats,
                     selectedFood = booking.selectedFood,
                     paymentMethod = booking.paymentMethod,
-                    roomNumber = booking.roomNumber
+                    roomNumber = booking.roomNumber,
+                    status = booking.status
                 )
             }
         }
@@ -116,13 +100,14 @@ fun BookingItem(
     selectedSeats: String,
     selectedFood: String,
     paymentMethod: String,
-    roomNumber: String
+    roomNumber: String,
+    status: String
 ) {
     var isQrCodeZoomed by remember { mutableStateOf(false) }
-
+    val backgroundColor = if (status == "Hết hạn") Color.LightGray else Color.White
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = MaterialTheme.shapes.medium
     ) {
@@ -132,7 +117,8 @@ fun BookingItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = movieTitle, fontWeight = FontWeight.Bold, fontSize = 16.sp, maxLines = 1)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "Ngày chiếu: $showDate - Giờ: $showTime", fontSize = 14.sp, color = Color.Gray)
+                Text(text = "Ngày khởi chiếu: $showDate ")
+                Text(text = "Giờ: $showTime",fontSize = 14.sp)
                 Text(text = "Phòng: $roomNumber", fontSize = 14.sp, color = Color.Gray)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(text = "Ghế đã chọn: $selectedSeats", fontSize = 13.sp)
@@ -149,11 +135,11 @@ fun BookingItem(
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(text = "Tổng tiền: ${"%,.0f".format(totalPrice)} VND", fontSize = 13.sp, color = Color.Black)
             }
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(5.dp))
             QRCode(
                 qrCodeContent = qrCodeContent,
                 modifier = Modifier
-                    .size(100.dp)
+                    .size(120.dp)
                     .clickable { isQrCodeZoomed = true }
             )
         }
@@ -182,7 +168,7 @@ fun BookingItem(
 @Composable
 fun QRCode(qrCodeContent: String, modifier: Modifier = Modifier) {
     val bitmap = remember(qrCodeContent) {
-        generateQRCodeBitmap(qrCodeContent,300)
+        generateQrCode(qrCodeContent,300)
     }
     if (bitmap != null) {
         Image(
@@ -193,21 +179,6 @@ fun QRCode(qrCodeContent: String, modifier: Modifier = Modifier) {
     }
 }
 
-fun generateQRCodeBitmap(text: String, size: Int): Bitmap? {
-    return try {
-        val bitMatrix = QRCodeWriter().encode(text, BarcodeFormat.QR_CODE, size, size)
-        val bmp = Bitmap.createBitmap(size, size, Bitmap.Config.RGB_565)
-        for (x in 0 until size) {
-            for (y in 0 until size) {
-                bmp.setPixel(x, y, if (bitMatrix[x, y]) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
-            }
-        }
-        bmp
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
-}
 
 @Preview(showBackground = true)
 @Composable

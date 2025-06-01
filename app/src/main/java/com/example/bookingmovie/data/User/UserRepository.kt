@@ -3,7 +3,6 @@
     class UserRepository(private val userDao: UserDao) {
         suspend fun insertUser(user: UserEntity) = userDao.insertUser(user)
 
-        //suspend fun login(username: String, password: String) = userDao.login(username, password)
 
         suspend fun getUserByUsername(username: String): UserEntity? {
             return userDao.getUserByUsername(username)
@@ -13,5 +12,4 @@
             val user = userDao.login(inputUsername, inputPassword)
             return user != null
         }
-
     }

@@ -137,6 +137,11 @@ fun LoginScreen(navController: NavController,loginViewModel: LoginViewModel) {
                                             }
                                         }
                                     }
+                                    "staff" -> {
+                                        navController.navigate("staff") {
+                                            popUpTo("login") { inclusive = true }
+                                        }
+                                    }
                                     else -> loginError = true
                                 }
                                 hasNavigated = true
@@ -152,7 +157,7 @@ fun LoginScreen(navController: NavController,loginViewModel: LoginViewModel) {
                     .fillMaxWidth()
                     .height(48.dp),
                 shape = RoundedCornerShape(12.dp),
-                enabled = !isLoading, // disable khi đang xử lý
+                enabled = !isLoading,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (!isLoading) Color.Black else Color.Gray,
                     contentColor = Color.White
@@ -162,14 +167,6 @@ fun LoginScreen(navController: NavController,loginViewModel: LoginViewModel) {
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Quên mật khẩu?",
-                color = Color.DarkGray,
-                modifier = Modifier.clickable { }
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
 
             Row {
                 Text(text = "Chưa có tài khoản? ", color = Color.DarkGray)

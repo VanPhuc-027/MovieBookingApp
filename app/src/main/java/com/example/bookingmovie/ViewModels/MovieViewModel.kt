@@ -113,7 +113,7 @@ class MovieViewModel (application: Application) : AndroidViewModel(application){
     ): List<com.example.bookingmovie.data.Seat.SeatEntity> {
         val seats = mutableListOf<com.example.bookingmovie.data.Seat.SeatEntity>()
         for (row in 'A'..'D') {
-            for (num in 1..6) {
+            for (num in 1..5) {
                 seats.add(
                     com.example.bookingmovie.data.Seat.SeatEntity(
                         seatNumber = "$row$num",

@@ -1,13 +1,20 @@
     package com.example.bookingmovie.Admin
 
+    import androidx.compose.foundation.Image
+    import androidx.compose.foundation.background
+    import androidx.compose.foundation.clickable
     import androidx.compose.foundation.layout.Arrangement
+    import androidx.compose.foundation.layout.Box
     import androidx.compose.foundation.layout.Column
     import androidx.compose.foundation.layout.PaddingValues
+    import androidx.compose.foundation.layout.Row
     import androidx.compose.foundation.layout.Spacer
     import androidx.compose.foundation.layout.fillMaxSize
     import androidx.compose.foundation.layout.fillMaxWidth
     import androidx.compose.foundation.layout.height
     import androidx.compose.foundation.layout.padding
+    import androidx.compose.foundation.layout.size
+    import androidx.compose.foundation.layout.width
     import androidx.compose.foundation.lazy.LazyColumn
     import androidx.compose.material3.Card
     import androidx.compose.material3.CardDefaults
@@ -21,24 +28,22 @@
     import androidx.compose.ui.graphics.Color
     import androidx.compose.ui.tooling.preview.Preview
     import androidx.compose.ui.unit.dp
-    import androidx.compose.ui.unit.sp
     import androidx.compose.runtime.remember
     import androidx.compose.ui.text.font.FontWeight
     import androidx.compose.foundation.lazy.items
-    import androidx.compose.material.icons.Icons
-    import androidx.compose.material.icons.filled.Search
-    import androidx.compose.material.Icon
-    import androidx.compose.material.OutlinedTextField
     import androidx.compose.runtime.mutableStateOf
-    import androidx.compose.material.Divider
     import androidx.compose.material.MaterialTheme
     import androidx.compose.runtime.LaunchedEffect
     import androidx.compose.runtime.getValue
     import androidx.compose.runtime.mutableStateListOf
     import androidx.compose.runtime.setValue
+    import androidx.compose.ui.Alignment
+    import androidx.compose.ui.graphics.asImageBitmap
+    import androidx.compose.ui.window.Dialog
     import com.example.bookingmovie.ViewModels.BookingViewModel
     import com.example.bookingmovie.data.Booking.BookingWithMovieAndUser
     import kotlinx.coroutines.flow.collectLatest
+    import com.example.bookingmovie.generateQrCode
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -78,24 +83,73 @@
     }
     @Composable
     fun AdminBookingItem(booking: BookingWithMovieAndUser) {
+        var isQrCodeZoomed by remember { mutableStateOf(false) }
+        val backgroundColor = if (booking.status == "Hết hạn") Color.LightGray else Color.White
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = backgroundColor),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
             shape = MaterialTheme.shapes.medium
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("User: ${booking.userName}", fontWeight = FontWeight.Bold)
-                Text("Movie: ${booking.movieName}")
-                Text("Date: ${booking.showDate} - Time: ${booking.showTime}")
-                Text("Room: ${booking.roomNumber}")
-                Text("Seats: ${booking.selectedSeats}")
-                Text("Food: ${booking.selectedFood}")
-                Text("Payment: ${booking.paymentMethod}")
-                Text("Booking Time: ${booking.bookingTime}")
-                Text("Total: ${"%,.0f".format(booking.totalPrice)} VND")
-                // Optionally show QR code as in UserHistory
+        )
+        {
+            Row (modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            )
+            {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Tài khoản: ${booking.userName}", fontWeight = FontWeight.Bold)
+                    Text("Movie: ${booking.movieName}")
+                    Text("Ngày khởi chiếu: ${booking.showDate} ")
+                    Text("Giờ chiếu: ${booking.showTime}")
+                    Text("Phòng: ${booking.roomNumber}")
+                    Text("Ghế đã chọn: ${booking.selectedSeats}")
+                    Text("Đồ ăn kèm: ${booking.selectedFood}")
+                    Text("Phương thức thanh toán: ${booking.paymentMethod}")
+                    Text("Thời gian đặt: ${booking.bookingTime}")
+                    Text("Tổng tiền: ${"%,.0f".format(booking.totalPrice)} VND")
+                }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    QRCode(
+                        qrCodeContent = booking.qrCodeContent,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clickable { isQrCodeZoomed = true }
+                    )
+
             }
+                if (isQrCodeZoomed) {
+                    Dialog(
+                        onDismissRequest = { isQrCodeZoomed = false }
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Black.copy(alpha = 0.8f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            QRCode(
+                                qrCodeContent = booking.qrCodeContent,
+                                modifier = Modifier
+                                    .size(300.dp)
+                                    .clickable { isQrCodeZoomed = false }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+    @Composable
+    fun QRCode(qrCodeContent: String, modifier: Modifier = Modifier) {
+        val bitmap = remember(qrCodeContent) {
+            generateQrCode(qrCodeContent,300)
+        }
+        if (bitmap != null) {
+            Image(
+                bitmap = bitmap.asImageBitmap(),
+                contentDescription = "Mã QR đặt vé",
+                modifier = modifier
+            )
         }
     }
 

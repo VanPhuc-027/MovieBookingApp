@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -60,7 +61,7 @@ fun RegisterScreenContent(
         OutlinedTextField(
             value = username,
             onValueChange = onUsernameChange,
-            label = { Text("Họ tên") },
+            label = { Text("Tên tài khoản") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -103,7 +104,7 @@ fun RegisterScreenContent(
         Button(
             onClick = onRegisterClick,
             modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.medium
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Black, contentColor = Color.White)
         ) {
             Text("Đăng ký")
         }
@@ -111,7 +112,7 @@ fun RegisterScreenContent(
         Button(
             onClick = onBackClick,
             modifier = Modifier.fillMaxWidth(),
-
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Black, contentColor = Color.White)
         ) {
             Text("Quay lai")
         }

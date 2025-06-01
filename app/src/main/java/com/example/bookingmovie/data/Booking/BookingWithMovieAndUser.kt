@@ -13,5 +13,6 @@ data class BookingWithMovieAndUser(
     val selectedSeats: String,
     val selectedFood: String,
     val paymentMethod: String,
-    val roomNumber: String
+    val roomNumber: String,
+    val status: String
 )

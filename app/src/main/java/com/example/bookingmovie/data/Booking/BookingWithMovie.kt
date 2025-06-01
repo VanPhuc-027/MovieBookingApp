@@ -12,5 +12,6 @@ data class BookingWithMovie(
     val selectedSeats: String,
     val selectedFood: String,
     val paymentMethod: String,
-    val roomNumber: String
+    val roomNumber: String,
+    val status: String
 )
